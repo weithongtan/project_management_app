@@ -6,4 +6,11 @@
     </style>
 
     <style name="Theme.Project_management_app" parent="Base.Theme.Project_management_app" />
+    <style name="Theme.Project_management_app.Starting" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenBackground">@color/splashBg</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/etyy_logo_animated</item>
+        <item name="android:windowSplashScreenAnimationDuration">1000</item>
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
+        <item name="postSplashScreenTheme">@style/Base.Theme.Project_management_app</item>
+    </style>
 </resources>
