@@ -3,4 +3,8 @@
     <string name="btn_create_project">+ Create Project</string>
     <string name="tv_my_project">My Project</string>
     <dimen name="screen_title_text_size">20sp</dimen>
+    <string-array name="view">
+        <item>List</item>
+        <item>kanban</item>
+    </string-array>
 </resources>

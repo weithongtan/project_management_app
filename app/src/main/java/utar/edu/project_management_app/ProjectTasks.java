@@ -1,14 +1,20 @@
 package utar.edu.project_management_app;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.TextView;
 import android.view.LayoutInflater;
+import android.widget.Toast;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.util.Calendar;
 
 public class ProjectTasks extends AppCompatActivity {
 
@@ -24,7 +30,9 @@ public class ProjectTasks extends AppCompatActivity {
         openBottomSheetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showBottomSheet();
+                // Show the bottom sheet dialog
+                TaskCreationActivity bottomSheetDialog = TaskCreationActivity.newInstance();
+                bottomSheetDialog.show(getSupportFragmentManager());
             }
         });
 
@@ -42,4 +50,6 @@ public class ProjectTasks extends AppCompatActivity {
         // Show the bottom sheet
         bottomSheetDialog.show();
     }
+
+
 }

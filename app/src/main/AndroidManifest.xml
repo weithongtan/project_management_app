@@ -22,6 +22,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".TaskCreationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Project_management_app" />
+
+        <activity
             android:name=".ProjectsList"
             android:exported="false"
             android:theme="@style/Theme.Project_management_app" />
