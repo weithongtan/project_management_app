@@ -5,6 +5,11 @@
     <dimen name="screen_title_text_size">20sp</dimen>
     <string-array name="view">
         <item>List</item>
-        <item>kanban</item>
+        <item>Kanban</item>
+    </string-array>
+    <string-array name="section">
+        <item>To Do</item>
+        <item>Pending</item>
+        <item>Done</item>
     </string-array>
 </resources>

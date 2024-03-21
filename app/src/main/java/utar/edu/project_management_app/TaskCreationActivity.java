@@ -6,12 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
@@ -33,13 +32,15 @@ public class TaskCreationActivity extends DialogFragment {
 
         spinnerOptions = view.findViewById(R.id.spinnerOptions);
         selectedDateTextView = view.findViewById(R.id.selectedDateTextView);
+        LinearLayout selectDateButton = view.findViewById(R.id.filterButton);
 
-        LinearLayout selectDateButton = view.findViewById(R.id.selectDateButton);
-
+        // View spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(),
-                R.array.view, android.R.layout.simple_spinner_item);
+                R.array.section, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerOptions.setAdapter(adapter);
+
+        // date pivkrt
         selectDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,7 +64,7 @@ public class TaskCreationActivity extends DialogFragment {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         // Update TextView with selected date
-                        selectedDateTextView.setText("Selected Date: " + dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                        selectedDateTextView.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
                     }
                 }, year, month, dayOfMonth);
 

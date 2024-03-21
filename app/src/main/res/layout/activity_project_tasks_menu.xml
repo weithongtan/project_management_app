@@ -36,28 +36,35 @@
 
         <TextView
             android:id="@+id/project_name"
-            android:layout_width="wrap_content"
+            android:layout_width="118dp"
             android:layout_height="wrap_content"
+            android:paddingLeft="7dp"
             android:text="@string/tv_my_project"
             android:textSize="@dimen/screen_title_text_size"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:orientation="horizontal">-->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="view" />
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="view" />-->
 
-            <ImageView
-                android:id="@+id/btn_choose_view"
-                android:layout_width="24dp"
-                android:layout_height="21dp"
-                app:srcCompat="@drawable/down_arrow" />
-        </LinearLayout>
+<!--            <ImageView-->
+<!--                android:id="@+id/btn_choose_view"-->
+<!--                android:layout_width="24dp"-->
+<!--                android:layout_height="21dp"-->
+<!--                app:srcCompat="@drawable/down_arrow" />-->
+<!--        </LinearLayout>-->
+        <Spinner
+            android:id="@+id/spinnerOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/view"
+            android:spinnerMode="dropdown" />
 
         <ImageView
             android:id="@+id/imageView3"

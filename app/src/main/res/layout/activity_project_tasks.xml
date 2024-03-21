@@ -16,13 +16,31 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp">
 
-        <TextView
-            android:id="@+id/text_view"
-            android:layout_width="match_parent"
-            android:layout_height="63dp"
-            android:text="TextView" />
+        <LinearLayout
+            android:id="@+id/filterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/table_cell_border"
+            android:orientation="horizontal"
+            android:paddingLeft="13dp"
+            android:paddingRight="10dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/filter_icon" />
+
+            <TextView
+                android:id="@+id/selectedDateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="filters" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -34,6 +52,8 @@
             android:layout_width="413dp"
             android:layout_height="536dp"
             android:background="#E8E8E8"
+            android:divider="#9A9A9A"
+            android:showDividers="middle"
             android:stretchColumns="*"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -45,58 +65,8 @@
             <!-- Row 1: Column Titles -->
             <TableRow>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:text="Task Name" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:text="Assignee" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:text="Due Date" />
-            </TableRow>
-
-            <!-- Row 2: To Do -->
-            <TableRow>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <Spinner
-                        android:id="@+id/todo_spinner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="8dp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:text="" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:text="" />
-            </TableRow>
-
-            <!-- Row 3: Pending -->
-            <TableRow>
-
-                <Spinner
-                    android:id="@+id/pending_spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp" />
@@ -105,6 +75,55 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
+                    android:text="Task Name"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="Assignee"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="Due Date"
+                    android:textSize="16sp" />
+            </TableRow>
+
+            <!-- Row 2: To Do -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <TableRow android:id="@+id/row_todo">
+
+                <ImageView
+                    android:id="@+id/btn_to_do"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="center"
+                    android:onClick="dropDownShowDetail"
+                    android:tag="false"
+                    app:srcCompat="@drawable/right_arrow" />
+
+                <TextView
+                    android:id="@+id/btn_to_do"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="dropDownShowDetail"
+                    android:padding="8dp"
+                    android:tag="false"
+                    android:text="To-Do"
+                    tools:ignore="DuplicateIds" />
+
+                <TextView
+                    android:id="@+id/a1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
                     android:text="" />
 
                 <TextView
@@ -113,15 +132,65 @@
                     android:padding="8dp"
                     android:text="" />
             </TableRow>
+
+
+            <!-- Row 3: Pending -->
+            <TableRow android:divider="@color/design_default_color_error">
+
+                <ImageView
+                    android:id="@+id/btn_pending"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="center"
+                    android:onClick="dropDownShowDetail"
+                    android:tag="false"
+                    app:srcCompat="@drawable/right_arrow" />
+
+                <TextView
+                    android:id="@+id/btn_pending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="dropDownShowDetail"
+                    android:padding="8dp"
+                    android:tag="false"
+                    android:text="Pending"
+                    tools:ignore="DuplicateIds" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="" />
+            </TableRow>
+
 
             <!-- Row 4: Complete -->
             <TableRow>
 
-                <Spinner
-                    android:id="@+id/complete_spinner"
+                <ImageView
+                    android:id="@+id/btn_done"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="center"
+                    android:onClick="dropDownShowDetail"
+                    android:tag="false"
+                    app:srcCompat="@drawable/right_arrow"
+                    tools:ignore="DuplicateIds" />
+
+                <TextView
+                    android:id="@+id/btn_done"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="8dp" />
+                    android:onClick="dropDownShowDetail"
+                    android:padding="8dp"
+                    android:tag="false"
+                    android:text="Done" />
 
                 <TextView
                     android:layout_width="wrap_content"
