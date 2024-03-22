@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">project_management_app</string>
+    <string name="btn_create_project">+ Create Project</string>
+    <string name="tv_my_project">My Project</string>
+    <dimen name="screen_title_text_size">20sp</dimen>
+    <string-array name="view">
+        <item>List</item>
+        <item>Kanban</item>
+    </string-array>
+    <string-array name="section">
+        <item>To Do</item>
+        <item>Pending</item>
+        <item>Done</item>
+    </string-array>
 </resources>
