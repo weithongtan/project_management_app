@@ -12,25 +12,29 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Project_management_app.Starting">
         <activity
+            android:name=".AccountSettings"
+            android:exported="false"
+            android:theme="@style/Theme.Project_management_app"/>
+        <activity
             android:name=".ProjectTasks"
             android:exported="true"
-            android:theme="@style/Theme.Project_management_app" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/Theme.Project_management_app">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".TaskCreationActivity"
             android:exported="false"
             android:theme="@style/Theme.Project_management_app" />
-
         <activity
             android:name=".ProjectsList"
             android:exported="false"
             android:theme="@style/Theme.Project_management_app" />
-
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
