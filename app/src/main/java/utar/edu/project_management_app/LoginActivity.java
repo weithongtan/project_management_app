@@ -20,5 +20,11 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        TextView login = findViewById(R.id.loginTV);
+        login.setOnClickListener(view -> {
+            Intent intent = new Intent(LoginActivity.this, ProfileFragment.class);
+            startActivity(intent);
+        });
+
     }
 }
