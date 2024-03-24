@@ -18,15 +18,22 @@
         <activity
             android:name=".ProjectTasks"
             android:exported="true"
-            android:theme="@style/Theme.Project_management_app">
+            android:theme="@style/Theme.Project_management_app" />
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
+        <activity
+            android:name=".MyTasks"
+            android:exported="true"
+            android:theme="@style/Theme.Project_management_app" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
 
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
         </activity>
+        <activity
+            android:name=".MyTaskListAdapter"
+            android:exported="false"
+            android:theme="@style/Theme.Project_management_app" />
         <activity
             android:name=".TaskCreationActivity"
             android:exported="false"
