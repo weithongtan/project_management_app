@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +25,8 @@ public class ProjectListFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private TextView openBottomSheetButton;
 
     public ProjectListFragment() {
         // Required empty public constructor
@@ -59,6 +63,36 @@ public class ProjectListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_project_list, container, false);
+        // return inflater.inflate(R.layout.fragment_project_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_project_list, container, false);
+        // Search Button Click Listener
+
+        view.findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText searchEditText = view.findViewById(R.id.project_name);
+                String searchQuery = searchEditText.getText().toString().trim();
+            }
+        });
+
+        // Filter Button Click Listener
+        view.findViewById(R.id.filterButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Implement filter functionality here
+            }
+        });
+
+        // Create Project Button Click Listener
+        TextView openBottomSheetButton = view.findViewById(R.id.btn_create_project);
+        openBottomSheetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show the bottom sheet dialog with ProjectCreationActivity
+                ProjectCreationBottomSheetDialogFragment bottomSheetDialog = new ProjectCreationBottomSheetDialogFragment();
+                bottomSheetDialog.show(getChildFragmentManager(), "ProjectCreationBottomSheet");
+            }
+        });
+        return view;
     }
 }
