@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         if (itemId == R.id.home) {
             selectedFragment = new ProjectListFragment();
         } else if (itemId == R.id.mytask) {
-            selectedFragment = new ProfileFragment();
+            selectedFragment = new MyTasksFragment();
         } else if (itemId == R.id.profile) {
             selectedFragment = new ProfileFragment();
         }

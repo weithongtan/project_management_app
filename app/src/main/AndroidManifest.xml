@@ -24,17 +24,8 @@
             android:theme="@style/Theme.Project_management_app" />
         <activity
             android:name=".MyTasks"
-            android:exported="true"
-            android:theme="@style/Theme.Project_management_app">
-
-            <!--
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-            -->
-        </activity>
+            android:exported="false"
+            android:theme="@style/Theme.Project_management_app" />
         <activity
             android:name=".MyTaskListAdapter"
             android:exported="false"
