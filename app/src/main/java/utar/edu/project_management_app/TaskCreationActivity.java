@@ -17,6 +17,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import java.util.Calendar;
 
+
 public class TaskCreationActivity extends DialogFragment {
 
     private TextView selectedDateTextView;
@@ -48,8 +49,11 @@ public class TaskCreationActivity extends DialogFragment {
             }
         });
 
+
+
         return view;
     }
+
 
     private void showDatePickerDialog() {
         // Get current date to set as default in DatePickerDialog

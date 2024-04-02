@@ -53,7 +53,7 @@
             android:layout_height="536dp"
             android:background="#E8E8E8"
             android:divider="#9A9A9A"
-            android:showDividers="middle"
+            android:showDividers="beginning|end|none"
             android:stretchColumns="*"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
