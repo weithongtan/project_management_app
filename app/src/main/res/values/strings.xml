@@ -2,6 +2,9 @@
     <string name="app_name">project_management_app</string>
     <string name="btn_create_project">+ Create Project</string>
     <string name="tv_my_project">My Project</string>
+    <string name="my_task">My Tasks</string>
+    <string name="user_initials">ME</string>
+    <string name="tv_my_account">My Account</string>
     <dimen name="screen_title_text_size">20sp</dimen>
     <string-array name="view">
         <item>List</item>
@@ -12,4 +15,6 @@
         <item>Pending</item>
         <item>Done</item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

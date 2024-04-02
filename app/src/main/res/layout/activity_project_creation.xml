@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp">
+
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="81dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            app:srcCompat="@drawable/option" />
+
+        <EditText
+            android:id="@+id/project_name"
+            android:layout_width="352dp"
+            android:layout_height="86dp"
+            android:layout_marginTop="30dp"
+            android:freezesText="true"
+            android:hint="Project Name"
+            android:inputType="text"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="5dp"
+            android:text="Default View" />
+
+        <LinearLayout
+            android:id="@+id/chooseViewButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="7dp"
+            android:paddingTop="7dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/ListTextView"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/blue_border_rounded_cornwe"
+                android:textAlignment="center"
+                android:padding="8dp"
+                android:text="List" />
+
+            <TextView
+                android:id="@+id/KanbanTextView"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/blue_border_rounded_cornwe"
+                android:layout_marginHorizontal="50dp"
+                android:textAlignment="center"
+                android:padding="8dp"
+                android:text="Kanban" />
+
+        </LinearLayout>
+
+
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp"
+            android:text="Due Date" />
+
+        <LinearLayout
+            android:id="@+id/filterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/blue_border_rounded_cornwe"
+            android:orientation="horizontal"
+            android:paddingLeft="7dp"
+            android:paddingTop="7dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/selectedDateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="Selected Date: Not set" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/date" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="200dp"
+            android:layout_marginLeft="200dp">
+            <TextView
+                android:id="@+id/btn_create_project"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:background="@drawable/blue_fill__rounded_color"
+                android:padding="10dp"
+                android:text="Create"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/btn_cancel_project"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:background="@drawable/blue_fill__rounded_color"
+                android:layout_marginHorizontal="10dp"
+                android:padding="10dp"
+                android:text="Cancel"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
