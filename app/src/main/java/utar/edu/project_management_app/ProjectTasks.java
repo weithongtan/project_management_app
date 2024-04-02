@@ -1,28 +1,21 @@
 package utar.edu.project_management_app;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+
 import android.widget.TextView;
 import android.view.LayoutInflater;
-import android.widget.Toast;
+
 
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
