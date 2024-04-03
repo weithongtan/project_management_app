@@ -41,6 +41,13 @@
                 android:text="filters" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TextView" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -63,32 +70,47 @@
             app:layout_constraintVertical_bias="0.0">
 
             <!-- Row 1: Column Titles -->
-            <TableRow>
+            <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="8dp" />
+                    android:paddingLeft="20dp"
+                    android:paddingTop="20dp"
+                    android:paddingRight="20dp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="146dp"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:text="Task Name"
                     android:textSize="16sp" />
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#9A9A9A" />
+
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="107dp"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:text="Assignee"
                     android:textSize="16sp" />
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#9A9A9A" />
+
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="120dp"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
+                    android:paddingLeft="18dp"
+                    android:paddingRight="18dp"
                     android:text="Due Date"
                     android:textSize="16sp" />
             </TableRow>
@@ -119,12 +141,22 @@
                     android:text="To-Do"
                     tools:ignore="DuplicateIds" />
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#9A9A9A" />
+
                 <TextView
                     android:id="@+id/a1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:text="" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#9A9A9A" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -135,7 +167,9 @@
 
 
             <!-- Row 3: Pending -->
-            <TableRow android:divider="@color/design_default_color_error">
+            <TableRow
+                android:id="@+id/row_pending"
+                android:divider="@color/design_default_color_error">
 
                 <ImageView
                     android:id="@+id/btn_pending"
@@ -156,11 +190,21 @@
                     android:text="Pending"
                     tools:ignore="DuplicateIds" />
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#9A9A9A" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:text="" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#9A9A9A" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -171,7 +215,7 @@
 
 
             <!-- Row 4: Complete -->
-            <TableRow>
+            <TableRow android:id="@+id/row_done">
 
                 <ImageView
                     android:id="@+id/btn_done"
@@ -190,13 +234,24 @@
                     android:onClick="dropDownShowDetail"
                     android:padding="8dp"
                     android:tag="false"
-                    android:text="Done" />
+                    android:text="Done"
+                    tools:ignore="DuplicateIds" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#9A9A9A" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:text="" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#9A9A9A" />
 
                 <TextView
                     android:layout_width="wrap_content"
