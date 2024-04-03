@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ProjectCreationBottomSheetDialogFragment#newInstance} factory method to
+ * Use the {@link ProjectCreationBottomSheetDialogFragment newInstance} factory method to
  * create an instance of this fragment.
  */
 public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogFragment {

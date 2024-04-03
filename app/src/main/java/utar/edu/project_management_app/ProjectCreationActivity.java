@@ -15,10 +15,14 @@ public class ProjectCreationActivity extends AppCompatActivity {
 
         // Create Button Click Listener
         TextView createButton = findViewById(R.id.btn_create_project);
+
+
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Implement project creation logic here
+
+
             }
         });
 
@@ -30,5 +34,9 @@ public class ProjectCreationActivity extends AppCompatActivity {
                 // Implement logic to cancel project creation and navigate back
             }
         });
+    }
+    public void text1(){
+        TextView tv1 = findViewById(R.id.textView3);
+        tv1.setText("hehe");
     }
 }
