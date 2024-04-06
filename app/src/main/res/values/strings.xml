@@ -15,6 +15,11 @@
         <item>Pending</item>
         <item>Done</item>
     </string-array>
+    <string-array name="priority">
+        <item>LOW</item>
+        <item>MEDIUM</item>
+        <item>HIGH</item>
+    </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
