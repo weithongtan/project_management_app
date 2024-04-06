@@ -8,8 +8,8 @@ public class Project {
     private String projectName;
     private String dueDate;
     private String timeCreation;
-    private List<Task> tasks; // A project has many tasks
-    private List<User> users; // A project has many users
+    private List<String> taskId; // A project has many tasks
+    private List<String> userId; // A project has many users
     // Constructors, getters, and setters
     public Project() {
     }
@@ -44,19 +44,19 @@ public class Project {
         return timeCreation;
     }
 
-    public List<Task> getTasks() {
-        return tasks;
+    public List<String> getTaskId() {
+        return taskId;
     }
 
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
+    public void setTaskId(List<String> taskId) {
+        this.taskId = taskId;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<String> getUserId() {
+        return userId;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setUserId(List<String> userId) {
+        this.userId = userId;
     }
 }

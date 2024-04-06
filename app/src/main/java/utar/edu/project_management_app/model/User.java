@@ -9,8 +9,8 @@ public class User {
     private String email;
 
 
-    private List<Project> projects; // A user has many projects
-    private List<Task> tasks;       // A user has many tasks
+    private List<String> projectsId; // A user has many projects
+    private List<String> tasksId;       // A user has many tasks
 
     // Constructors, getters, and setters
     public User() {
@@ -54,20 +54,20 @@ public class User {
         this.email = email;
     }
 
-    public List<Project> getProjects() {
-        return projects;
+    public List<String> getProjects() {
+        return projectsId;
     }
 
-    public void setProjects(List<Project> projects) {
-        this.projects = projects;
+    public void setProjects(List<String> projects) {
+        this.projectsId = projects;
     }
 
-    public List<Task> getTasks() {
-        return tasks;
+    public List<String> getTasks() {
+        return tasksId;
     }
 
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
+    public void setTasks(List<String> tasks) {
+        this.tasksId = tasks;
     }
 }
 
