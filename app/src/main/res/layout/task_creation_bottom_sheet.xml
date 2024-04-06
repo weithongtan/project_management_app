@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -26,6 +27,7 @@
             android:layout_width="352dp"
             android:layout_height="86dp"
             android:layout_marginTop="30dp"
+            android:backgroundTint="#000000"
             android:freezesText="true"
             android:hint="Task Name"
             android:inputType="text"
@@ -77,20 +79,58 @@
                 app:srcCompat="@drawable/date" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView4"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="Section" />
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="371dp">
 
-        <Spinner
-            android:id="@+id/spinnerOptions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:entries="@array/view"
-            android:spinnerMode="dropdown" />
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="136dp"
+                android:text="Section"
+                app:layout_constraintEnd_toStartOf="@+id/textView10"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="96dp"
+                android:layout_marginBottom="12dp"
+                android:text="Priority"
+                app:layout_constraintBottom_toTopOf="@+id/PriorityOptions"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Spinner
+                android:id="@+id/SectionOptions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="64dp"
+                android:entries="@array/view"
+                android:spinnerMode="dropdown"
+                app:layout_constraintEnd_toStartOf="@+id/PriorityOptions"
+                app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+            <Spinner
+                android:id="@+id/PriorityOptions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="2dp"
+                android:entries="@array/view"
+                android:spinnerMode="dropdown"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/textView5"
