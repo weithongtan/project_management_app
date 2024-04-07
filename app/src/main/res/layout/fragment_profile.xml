@@ -83,13 +83,17 @@
                                 android:id="@+id/userPhoto"
                                 android:layout_width="100dp"
                                 android:layout_height="100dp"
+                                android:scaleType="fitCenter"
                                 android:layout_centerHorizontal="true"
-                                android:layout_marginTop="20dp"
-                                android:src="@drawable/baseline_person_24" />
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="20dp"
+                                android:src="@drawable/baseline_person_24"
+                                android:clickable="true"
+                                />
 
                             <!-- Email Address -->
                             <TextView
-                                android:id="@+id/emailAddress"
+                                android:id="@+id/profileEmail"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_below="@id/userPhoto"
@@ -108,10 +112,12 @@
                                 android:gravity="center">
 
                                 <TextView
+                                    android:id="@+id/profileUsername"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:paddingEnd="10dp"
+                                    android:paddingLeft="30dp"
                                     android:text="Username"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
@@ -119,9 +125,10 @@
                                 <ImageButton
                                     android:id="@+id/editButton"
                                     android:layout_width="30dp"
-                                    android:layout_height="30dp"
+                                    android:layout_height="match_parent"
                                     android:backgroundTint="#00FFFFFF"
-                                    android:src="@drawable/edit_pen" />
+                                    android:src="@drawable/edit_pen"
+                                    android:clickable="true"/>
                             </LinearLayout>
                         </RelativeLayout>
 
@@ -135,15 +142,19 @@
                             android:text="Profile" />
 
                         <TextView
+                            android:id="@+id/editProfile"
                             style="@style/viewParent.headerText.settingsTextIcon"
                             app:drawableStartCompat="@drawable/ic_edit_profile"
-                            android:text="Edit Profile" />
+                            android:text="Edit Profile"
+                            android:clickable="true"/>
 
                         <TextView
+                            android:id="@+id/changePw"
                             style="@style/viewParent.headerText.settingsTextIcon"
                             android:layout_marginTop="10dp"
                             app:drawableStartCompat="@drawable/ic_edit_password"
-                            android:text="Change Password" />
+                            android:text="Change Password"
+                            android:clickable="true"/>
 
                         <View
                             android:id="@+id/divider"
@@ -190,6 +201,8 @@
                             android:background="?android:attr/listDivider" />
 
                         <TextView
+                            android:id="@+id/logout"
+                            android:clickable="true"
                             style="@style/viewParent.headerText.settingsTextIcon"
                             app:drawableStartCompat="@drawable/ic_logout"
                             android:text="Logout" />

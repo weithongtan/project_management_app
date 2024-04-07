@@ -13,14 +13,14 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="250dp"
             android:background="@drawable/login_bg">
 
             <ImageView
                 android:layout_width="250dp"
                 android:layout_height="250dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="5dp"
                 android:src="@drawable/etyy_logo_static" />
 
         </FrameLayout>
@@ -51,6 +51,40 @@
                 android:layout_toRightOf="@+id/username_icon"
                 android:background="@android:color/transparent"
                 android:fontFamily="@font/poppins_regular"
+                android:hint="Username"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:paddingLeft="17dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:textCursorDrawable="@drawable/cursor_color"
+                android:textSize="12sp"/>
+
+            <ImageView
+                android:id="@+id/username_icon"
+                android:layout_width="16dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="17dp"
+                android:src="@drawable/name"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="60dp"
+            android:background="@drawable/blue_border_rounded_cornwe">
+
+            <EditText
+                android:id="@+id/email_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/email_icon"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/poppins_regular"
                 android:hint="Email"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
@@ -61,7 +95,7 @@
                 android:textSize="12sp"/>
 
             <ImageView
-                android:id="@+id/username_icon"
+                android:id="@+id/email_icon"
                 android:layout_width="15dp"
                 android:layout_height="10dp"
                 android:layout_centerVertical="true"
@@ -78,7 +112,7 @@
             android:background="@drawable/blue_border_rounded_cornwe">
 
             <EditText
-                android:id="@+id/password"
+                android:id="@+id/password_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/password_icon"
@@ -111,7 +145,7 @@
             android:background="@drawable/blue_border_rounded_cornwe">
 
             <EditText
-                android:id="@+id/password"
+                android:id="@+id/confirmPw"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/password_icon2"
@@ -137,6 +171,7 @@
         </RelativeLayout>
 
         <TextView
+            android:id="@+id/registerBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -152,7 +187,17 @@
             android:textColor="@color/white"
             android:textSize="16sp"/>
 
-
+        <TextView
+            android:id="@+id/loginTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Already an user? Login now!"
+            android:textColor="@color/splashBg"
+            android:textSize="12sp"
+            android:clickable="true"/>
 
 
     </LinearLayout>

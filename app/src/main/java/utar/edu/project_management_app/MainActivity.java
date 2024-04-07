@@ -7,27 +7,54 @@ import androidx.fragment.app.Fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth authProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        SplashScreen.installSplashScreen(this);
+        //SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        authProfile = FirebaseAuth.getInstance();
+//        if(authProfile.getCurrentUser() != null){
+//            Toast.makeText(MainActivity.this, "Already logged in", Toast.LENGTH_SHORT).show();
+//            startActivity(new Intent(MainActivity.this, MainActivity.class));
+//            finish();
+//        }
+//        else{
+//            Toast.makeText(MainActivity.this, "You can login now", Toast.LENGTH_SHORT).show();
+//            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+//            finish();
+//        }
+
+
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
 
         // as soon as the application opens the first
         // fragment should be shown to the user
-        // in this case it is algorithm fragment
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProjectListFragment()).commit();
+        // Check if the intent contains a flag to load the ProfileFragment
+        String fragmentToLoad = getIntent().getStringExtra("fragmentToLoad");
+        if (fragmentToLoad != null && fragmentToLoad.equals("profile")) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ProfileFragment())
+                    .commit();
+        } else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProjectListFragment()).commit();
+        }
+
 
 
     }
@@ -52,4 +79,19 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     };
+
+//    @Override
+//    protected void onStart(){
+//        super.onStart();
+//        if(authProfile.getCurrentUser() != null){
+//            Toast.makeText(MainActivity.this, "Already logged in", Toast.LENGTH_SHORT).show();
+//            startActivity(new Intent(MainActivity.this, MainActivity.class));
+//            finish();
+//        }
+//        else{
+//            Toast.makeText(MainActivity.this, "You can login now", Toast.LENGTH_SHORT).show();
+//            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+//            finish();
+//        }
+//    }
 }
