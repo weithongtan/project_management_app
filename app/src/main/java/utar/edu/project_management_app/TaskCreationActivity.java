@@ -17,6 +17,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import java.util.Calendar;
 
+
 public class TaskCreationActivity extends DialogFragment {
 
     private TextView selectedDateTextView;
@@ -30,7 +31,7 @@ public class TaskCreationActivity extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.task_creation_bottom_sheet, container, false);
 
-        spinnerOptions = view.findViewById(R.id.spinnerOptions);
+        spinnerOptions = view.findViewById(R.id.SectionOptions);
         selectedDateTextView = view.findViewById(R.id.selectedDateTextView);
         LinearLayout selectDateButton = view.findViewById(R.id.filterButton);
 
@@ -48,8 +49,11 @@ public class TaskCreationActivity extends DialogFragment {
             }
         });
 
+
+
         return view;
     }
+
 
     private void showDatePickerDialog() {
         // Get current date to set as default in DatePickerDialog

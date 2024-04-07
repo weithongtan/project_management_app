@@ -1,5 +1,6 @@
 package utar.edu.project_management_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -93,6 +94,19 @@ public class ProjectListFragment extends Fragment {
                 bottomSheetDialog.show(getChildFragmentManager(), "ProjectCreationBottomSheet");
             }
         });
+
+        // Navigate to project tasks screen
+        TextView project1 = view.findViewById(R.id.project1);
+        project1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getActivity(), ProjectTasks.class);
+                i.putExtra("projectId", "1"); // ToDo: the value argument need to change based on the project clicked
+                startActivity(i);
+
+            }
+        });
+
         return view;
     }
 }
