@@ -55,4 +55,5 @@ dependencies {
     // Add the dependency for the Firebase Authentication library
     implementation("com.google.firebase:firebase-auth")
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.google.android.material:material:1.11.0'
 }
