@@ -54,9 +54,12 @@
                 android:layout_width="120dp"
                 android:layout_height="match_parent"
                 android:background="@drawable/blue_border_rounded_cornwe"
+                android:clickable="true"
+                android:focusable="true"
                 android:textAlignment="center"
                 android:padding="8dp"
-                android:text="List" />
+                android:text="List"
+                android:onClick="onListTextViewClicked"/>
 
             <TextView
                 android:id="@+id/KanbanTextView"
@@ -70,6 +73,35 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/invite_member"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp">
+
+            <TextView
+                android:id="@+id/clickable_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Members"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="80dp"
+                android:textColor="@color/splashBg"
+                android:textSize="18sp"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="onClickableTextClicked" />
+
+            <View
+                android:id="@+id/horizontal_line"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/splashBg"
+                android:layout_marginTop="0dp" />
+
+        </LinearLayout>
 
 
         <TextView
@@ -81,7 +113,7 @@
             android:text="Due Date" />
 
         <LinearLayout
-            android:id="@+id/filterButton"
+            android:id="@+id/dateButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/blue_border_rounded_cornwe"
@@ -108,9 +140,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="200dp"
-            android:layout_marginLeft="200dp">
-
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="180dp">
             <TextView
                 android:id="@+id/btn_create_project"
                 android:layout_width="wrap_content"
