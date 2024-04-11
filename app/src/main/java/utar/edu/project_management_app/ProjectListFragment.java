@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import utar.edu.project_management_app.model.Project;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ProjectListFragment#newInstance} factory method to
@@ -95,13 +97,14 @@ public class ProjectListFragment extends Fragment {
             }
         });
 
-        // Navigate to project tasks screen
+        // Navigate to project tasks screen and pass the project class
         TextView project1 = view.findViewById(R.id.project1);
         project1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(getActivity(), ProjectTasks.class);
-                i.putExtra("projectId", "1"); // ToDo: the value argument need to change based on the project clicked
+                Project project = new Project("1", "p1");
+                i.putExtra("projectId", project.getProjectId()); // ToDo: the value argument need to change based on the project clicked
                 startActivity(i);
 
             }

@@ -76,8 +76,4 @@ public class TaskCreationActivity extends DialogFragment {
         datePickerDialog.show();
     }
 
-    // Convenience method to show the bottom sheet dialog
-    public void show(FragmentManager fragmentManager) {
-        super.show(fragmentManager, "bottomSheet");
-    }
 }
