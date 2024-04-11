@@ -74,18 +74,4 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/btn_invite_member"
-        android:layout_width="28dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center|right"
-        app:srcCompat="@drawable/invite_member_icon" />
-
-    <ImageView
-        android:id="@+id/btn_option"
-        android:layout_width="32dp"
-        android:layout_height="38dp"
-        android:layout_gravity="center|right"
-        app:srcCompat="@drawable/option" />
-
 </LinearLayout>

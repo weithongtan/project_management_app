@@ -2,31 +2,29 @@ package utar.edu.project_management_app.model;
 
 import androidx.annotation.NonNull;
 
-import java.time.LocalDateTime;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-public class Task {
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Task implements Serializable {
 
     private String taskId;
     private String taskName;
     private String dueDate;
-    private String timeCreation = LocalDateTime.now().toString();
+    private String timeCreation;
     private String priority;
     private String section;
     private String description;
     private String projectId; // A task belongs to a project
+    private List<String> userId; // A task has many users
 
-
-
-    enum Priority {
-        LOW,
-        MEDIUM,
-        HIGH
-    }
-    enum Section {
-        TODO,
-        PENDING,
-        DONE
-    }
 
     // Constructors, getters, and setters
     public Task() {
@@ -37,14 +35,16 @@ public class Task {
         this.taskName = taskName;
     }
 
-    public Task(String taskId, String taskName, String dueDate, String priority, String section, String description, String project) {
+    public Task(String taskId, String taskName, String dueDate, String priority, String section, String description, String projectId) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.dueDate = dueDate;
         this.priority = priority;
         this.section = section;
         this.description = description;
-        this.projectId = project;
+        this.projectId = projectId;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        this.timeCreation = LocalDateTime.now().format(formatter);
     }
 
     public String getTaskName() {
@@ -56,6 +56,7 @@ public class Task {
     }
 
     public String getDueDate() {
+
         return dueDate;
     }
 
@@ -71,12 +72,9 @@ public class Task {
         return taskId;
     }
 
-    public String getTimeCreation() {
-        return timeCreation;
-    }
+    public String  getTimeCreation() {
 
-    public String getProject() {
-        return projectId;
+        return timeCreation;
     }
 
     public void setPriority(String priority) {
@@ -101,5 +99,9 @@ public class Task {
 
     public String getProjectId() {
         return projectId;
+    }
+
+    public void addTaskToDatabase(){
+
     }
 }

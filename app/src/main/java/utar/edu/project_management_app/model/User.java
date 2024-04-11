@@ -7,8 +7,6 @@ public class User {
     private String username;
     private String password;
     private String email;
-
-
     private List<String> projectsId; // A user has many projects
     private List<String> tasksId;       // A user has many tasks
 

@@ -1,8 +1,10 @@
 package utar.edu.project_management_app;
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +18,24 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
+import utar.edu.project_management_app.model.Project;
 import utar.edu.project_management_app.model.Task;
 import utar.edu.project_management_app.model.User;
 
@@ -34,15 +47,25 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
     private EditText taskName, description;
     private OnTaskSubmitListener taskSubmitListener;
     private HashMap<String, Object> tasks;
+    private Project project;
 
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
     public interface OnTaskSubmitListener{
-        void onTaskSubmit(HashMap<String, Object> tasks);
+        void onTaskSubmit(Task tasks);
     }
 
-    public void setTaskSubmitListerner(OnTaskSubmitListener listener){
-        this.taskSubmitListener = listener;
+//    public void setTaskSubmitListerner(OnTaskSubmitListener listener){
+//        this.taskSubmitListener = listener;
+//    }
+
+    public interface OnDialogDismissListener {
+        void onDialogDismissed();
+    }
+    private OnDialogDismissListener dismissListener;
+
+    public void setOnDialogDismissListener(OnDialogDismissListener listener) {
+        this.dismissListener = listener;
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,7 +75,6 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         // Retrieve the project ID from the arguments
         Bundle args = getArguments();
         String projectId = args.getString("projectId", "");
-
 
         // find view for used id
         sectionOptions = view.findViewById(R.id.SectionOptions);
@@ -84,36 +106,73 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
             }
         });
 
-        tasks = new HashMap<String, Object>();
+        DatabaseReference counterRef = database.child("taskCounter");
+
         submitTaskButton.setOnClickListener(v->{
-            if(taskSubmitListener != null && isFilled()){
-                taskName.setBackgroundColor(Color.RED);
-                taskName.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
 
-                tasks.put("Task Name", taskName.getText());
-                tasks.put("Due Date", dueDate.getText());
-                tasks.put("Section", sectionOptions.getSelectedItem());
-                tasks.put("Priority", priorityOptions.getSelectedItem());
-                tasks.put("Description", description.getText());
-                tasks.put("Time Creation", LocalDateTime.now());
-                taskSubmitListener.onTaskSubmit(tasks);
-                DatabaseReference counterRef = database.child("taskCounter");
-                counterRef.setValue(0);
-//                Task task = new Task(taskName.getText(),dueDate.getText())
-//                User user = new User("001", "fuwejh","fcuwje", "gmail");
-//                database.child("users").child(user.getUserId()).setValue(user);
-                dismiss();
 
-            }
+            // for read the task counter from db to ensure multiple user wont create same task id
+            counterRef.runTransaction(new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+                    Integer currentValue = mutableData.getValue(Integer.class);
+                    if (currentValue == null) {
+                        mutableData.setValue(1);
+                    } else {
+                        mutableData.setValue(currentValue + 1);
+                    }
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot dataSnapshot) {
+                    if (committed) {
+                        if(isFilled()){
+
+
+                            Task newTask = new Task(UUID.randomUUID().toString(),taskName.getText().toString(),dueDate.getText().toString(),
+                                    priorityOptions.getSelectedItem().toString(),sectionOptions.getSelectedItem().toString(),
+                                    description.getText().toString(),projectId);
+
+//                            taskSubmitListener.onTaskSubmit(newTask); // add task row to project list screen
+
+                            // update task and project in realtime database
+                            Map<String, Object> childUpdates = new HashMap<>();
+                            childUpdates.put("/task/" + newTask.getTaskId(), newTask);
+                            childUpdates.put("/project/"+newTask.getProjectId()+"/taskId/" + newTask.getTaskId(), true);
+
+                            database.updateChildren(childUpdates);
+
+                            dismiss();
+
+                        }
+
+                    }
+                }
+            });
+
         });
 
+
+
+
+
         return view;
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (dismissListener != null) {
+            dismissListener.onDialogDismissed();
+        }
     }
     private boolean isFilled() {
         boolean isTaskNameEmpty = taskName.getText().toString().isEmpty();
         boolean isDateEmpty = !Character.isDigit(dueDate.getText().toString().charAt(0));
 
         if (isTaskNameEmpty) {
+            taskName.setHint(taskName.getHint() + "*");
             taskName.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
             taskName.setHintTextColor(Color.parseColor("#85FF0000"));
         } else {
@@ -122,6 +181,7 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         }
 
         if (isDateEmpty) {
+            dueDate.setText(dueDate.getText() + "*");
             dueDate.setTextColor(Color.RED);
         } else {
             dueDate.setTextColor(Color.BLACK); // Reset to default or desired color when not empty
