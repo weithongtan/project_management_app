@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "132968821532",
+    "firebase_url": "https://project-management-app-5bd15-default-rtdb.firebaseio.com",
+    "project_id": "project-management-app-5bd15",
+    "storage_bucket": "project-management-app-5bd15.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132968821532:android:9a68b87e5c0c35b9a500d9",
+        "android_client_info": {
+          "package_name": "utar.edu.project_management_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpFX9PrDgvlzWtS8yXrMPW42JUCzLtVjc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
