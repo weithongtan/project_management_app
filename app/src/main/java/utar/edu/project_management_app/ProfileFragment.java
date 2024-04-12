@@ -291,8 +291,9 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String newUsername = editTextUsername.getText().toString();
+                String email = firebaseUser.getEmail();
                 //Storing info to Real-time database
-                ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(newUsername);
+                ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(newUsername, email);
 
                 DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("Registered Users");
                 referenceProfile.child(firebaseUser.getUid()).setValue(writeUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {

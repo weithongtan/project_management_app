@@ -109,7 +109,7 @@ public class RegisterActivity extends AppCompatActivity {
                     FirebaseUser firebaseuser = auth.getCurrentUser();
 
                     //Storing info to Real-time database
-                    ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(username);
+                    ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(username, email);
 
                     DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("Registered Users");
                     referenceProfile.child(firebaseuser.getUid()).setValue(writeUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
