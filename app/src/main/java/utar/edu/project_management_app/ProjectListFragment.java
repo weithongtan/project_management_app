@@ -115,16 +115,6 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             }
         });
 
-        TextView project1 = view.findViewById(R.id.project1);
-        project1.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getActivity(), ProjectTasks.class);
-                i.putExtra("projectId", "1");
-                startActivity(i);
-            }
-        });
-
         return view;
     }
 
@@ -218,9 +208,11 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             return; // Exit the method to avoid adding a new row
         }
 
+
         // If no existing row is found, create a new row and add it to the UI
         TableRow newRow = new TableRow(requireContext());
         newRow.setTag(projectId);
+
 
         TextView projectTextView = new TextView(requireContext());
         projectTextView.setText(projectName);
@@ -230,6 +222,16 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
         ));
         projectTextView.setGravity(Gravity.CENTER_VERTICAL);
         projectTextView.setPadding(30, 8, 50, 8);
+        // set click event to navigate to project tasks
+        projectTextView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+
+                Intent i = new Intent(getActivity(), ProjectTasks.class);
+                i.putExtra("projectId", projectId);
+                startActivity(i);
+            }
+        });
 
         TextView progressPercentTextView = new TextView(requireContext());
         progressPercentTextView.setText("0%");
