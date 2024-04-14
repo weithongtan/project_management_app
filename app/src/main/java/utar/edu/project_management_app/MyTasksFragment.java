@@ -10,9 +10,17 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import utar.edu.project_management_app.model.Task;
 
 public class MyTasksFragment extends Fragment {
 
@@ -29,12 +37,13 @@ public class MyTasksFragment extends Fragment {
     ExpandableListAdapter expandableListAdapter;
     List<String> expandableListTitle;
     HashMap<String, List<String>> expandableListDetail;
+    List<Task> tasks;
 
     public MyTasksFragment() {
         // Required empty public constructor
     }
 
-    /**
+    /*
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
@@ -74,6 +83,7 @@ public class MyTasksFragment extends Fragment {
         expandableListView.setAdapter(expandableListAdapter);
         return rootView;
     }
+
     public static HashMap<String, List<String>> getData() {
         HashMap<String, List<String>> expandableListDetail = new HashMap<String, List<String>>();
 
@@ -95,9 +105,9 @@ public class MyTasksFragment extends Fragment {
         String[] done2 = {"Task6", "project 1", "21 May"};
         done.add(String.join(";",done2));
 
-        expandableListDetail.put("To-Do", todo);
-        expandableListDetail.put("Pending", pending);
         expandableListDetail.put("Done", done);
+        expandableListDetail.put("Pending", pending);
+        expandableListDetail.put("To-Do", todo);
         return expandableListDetail;
     }
 }

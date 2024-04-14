@@ -100,6 +100,7 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
         create_project_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String proj_name = project_name.getText().toString();
                 String date = selectedDateTextView.getText().toString();
                 String view = defaultView;
@@ -185,23 +186,30 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
         // Get the current user's ID
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        // initialized project class
+        Project newProject = new Project();
+
+
         // Get reference to the current user's projects node
         DatabaseReference currentUserProjectsRef = FirebaseDatabase.getInstance().getReference().child("Registered Users").child(userId).child("projects");
         // Push the project data under the user's projects node with the incremented project counter as the key
         DatabaseReference newProjectRef = currentUserProjectsRef.push();
         String projectId = newProjectRef.getKey();  // Get the generated project ID
 
-
+        newProject.setProjectName(projName);
+        newProject.setDueDate(date);
+        newProject.setProjectId(projectId);
+        newProject.getEmails().add(getCurrentUserEmail());
 
         // Create a hashmap for the project details
-        HashMap<String, Object> projectDetails = new HashMap<>();
-        projectDetails.put("Project Name", projName);
-        projectDetails.put("Due Date", date);
+//        HashMap<String, Object> projectDetails = new HashMap<>();
+//        projectDetails.put("Project Name", projName);
+//        projectDetails.put("Due Date", date);
 
 
         // Store the project details under the generated project ID in the projects table
         DatabaseReference projectsRef = FirebaseDatabase.getInstance().getReference().child("projects").child(projectId);
-        projectsRef.setValue(projectDetails);
+        projectsRef.setValue(newProject);
 
         // Update the user's projectsId list
         DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference().child("Registered Users").child(userId);
@@ -224,7 +232,14 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
         }
         return null;
     }
-
+    private String getCurrentUserEmail() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            return currentUser.getEmail();
+        }
+        return null;
+    }
 
     private boolean isFilled() {
         boolean isProjectNameEmpty = project_name.getText().toString().isEmpty();
