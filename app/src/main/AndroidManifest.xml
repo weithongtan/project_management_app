@@ -33,10 +33,6 @@
             android:exported="true"
             android:theme="@style/Theme.Project_management_app" />
         <activity
-            android:name=".MyTasks"
-            android:exported="false"
-            android:theme="@style/Theme.Project_management_app" />
-        <activity
             android:name=".MyTaskListAdapter"
             android:exported="false"
             android:theme="@style/Theme.Project_management_app" />

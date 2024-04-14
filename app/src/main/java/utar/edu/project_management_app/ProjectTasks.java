@@ -1,23 +1,19 @@
 package utar.edu.project_management_app;
 
-
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.drawable.GradientDrawable;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+
 import android.widget.Button;
 import android.widget.EditText;
+
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -27,13 +23,13 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.view.LayoutInflater;
 
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,17 +37,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+
 import java.util.List;
 import java.util.Map;
 
-import utar.edu.project_management_app.model.Project;
 import utar.edu.project_management_app.model.Task;
-import utar.edu.project_management_app.model.User;
 
 public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreationBottomSheetDialogFragment.OnDialogDismissListener{
 
@@ -60,7 +55,11 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     private TextView openBottomSheetButton;
     private Spinner spinnerOptions;
     private List<ImageView> dropDownButtonSectionList;
+    private List<LinearLayout> kanbanList;
     private String projectId ;
+
+    private String viewType;
+
     private ImageView addMember;
 
     private List<String> projectEmails = new ArrayList<>();;
@@ -71,7 +70,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_tasks);
-
         // include the menu layout
         View includedLayout = LayoutInflater.from(this).inflate(R.layout.activity_project_tasks_menu, null);
 
@@ -79,6 +77,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         // Todo get project id from here (junyi)
         projectId = getIntent().getStringExtra("projectId");
         String projectName = getIntent().getStringExtra("projectName");
+
 
         TextView projectname = findViewById(R.id.project_name);
         projectname.setText(projectName);
@@ -96,6 +95,31 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerOptions.setAdapter(adapter);
 
+        //spinner listener -- hide list or kanban depending on which is selected
+        spinnerOptions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Get the selected item from the spinner
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                // Run code based on the selected item
+                if (selectedItem.equals("List")) {
+                    viewType = "List";
+                    findViewById(R.id.listView).setVisibility(View.VISIBLE);
+                    findViewById(R.id.kanbanView).setVisibility(View.GONE);
+                } else if (selectedItem.equals("Kanban")) {
+                    viewType = "Kanban";
+                    findViewById(R.id.kanbanView).setVisibility(View.VISIBLE);
+                    findViewById(R.id.listView).setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+
+        });
+
         // Return to main screen
         ImageView backButton = findViewById(R.id.btn_back);
         backButton.setOnClickListener(v -> {
@@ -110,6 +134,11 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         dropDownButtonSectionList.add(findViewById(R.id.btn_to_do));
         dropDownButtonSectionList.add(findViewById(R.id.btn_pending));
         dropDownButtonSectionList.add(findViewById(R.id.btn_done));
+
+        kanbanList = new ArrayList<>();
+        kanbanList.add(findViewById(R.id.kanbanToDo));
+        kanbanList.add(findViewById(R.id.kanbanPending));
+        kanbanList.add(findViewById(R.id.kanbanDone));
 
         // create new task button
         openBottomSheetButton = findViewById(R.id.btn_create_task);
@@ -176,6 +205,30 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
         int doneIndex2 = tableLayout.indexOfChild(findViewById(R.id.row_done));
         removeRowsBelowIndex(tableLayout, doneIndex2, tableLayout.getChildCount());
+
+        //remove all kanban items
+        for (LinearLayout linearLayout : kanbanList) {
+            linearLayout.removeAllViews();
+        }
+        //add title back to the views
+        for (int i = 0; i < kanbanList.size(); i++){
+            TextView textView = new TextView(this);
+            textView.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            ));
+            textView.setTextColor(Color.BLACK);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+            textView.setTypeface(null, Typeface.BOLD);
+            textView.setPadding(dpToPx(30), dpToPx(10), dpToPx(30), dpToPx(10));
+
+            String[] sections = getResources().getStringArray(R.array.section);
+            textView.setText(sections[i]);
+
+            kanbanList.get(i).addView(textView);
+        }
+
+
     }
     // to show the current invited email to add member screen
     private void getCurrentProjectEmail(){
@@ -405,18 +458,21 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         String priority = task.getPriority();
         String creationDate = task.getTimeCreation();
 
-
+        LinearLayout kanban;
         // Find the table row to add the new task based on the section
         TableRow tableRow;
 
         switch (section) {
             case "To Do":
+                kanban = kanbanList.get(0);
                 tableRow = findViewById(R.id.row_todo);
                 break;
             case "Pending":
+                kanban = kanbanList.get(1);
                 tableRow = findViewById(R.id.row_pending);
                 break;
             case "Done":
+                kanban = kanbanList.get(2);
                 tableRow = findViewById(R.id.row_done);
                 break;
             default:
@@ -493,7 +549,21 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         newRow.addView(dueDateTextView);
 
 
-        taskNameTextView.setOnClickListener(new View.OnClickListener() {
+        //inflate tasks for kanban view
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View kanbanTask = inflater.inflate(R.layout.kanban_task, null);
+        kanbanTask.setTag(task.getTaskId());
+
+        //add details of task
+        TextView kanbanTaskNameTextView = kanbanTask.findViewById(R.id.kanbanTaskName);
+        TextView kanbanTaskAssigneeTextView = kanbanTask.findViewById(R.id.kanbanTaskAssignee);
+        TextView kanbanTaskDateTextView = kanbanTask.findViewById(R.id.kanbanTaskDate);
+        kanbanTaskNameTextView.setText(taskName);
+        kanbanTaskAssigneeTextView.setText("234");
+        kanbanTaskDateTextView.setText(dueDate);
+
+        //On click listener for tasks
+        View.OnClickListener taskClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Task clickedtask = new Task();
@@ -504,7 +574,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
                     }
                 }
 
-
                 Intent i = new Intent(ProjectTasks.this, TaskDetailActivity.class);
                 i.putExtra("clickedTask",  clickedtask);
                 i.putExtra("ProjectMembersEmail", projectEmails.toArray(new String[0]));
@@ -512,16 +581,29 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
                 startActivity(i);
             }
-        });
+        };
+
+        //add listener for both list and kanban
+        kanbanTask.setOnClickListener(taskClick);
+        taskNameTextView.setOnClickListener(taskClick);
+
 
         // Add the new row below the corresponding section
         TableLayout tableLayout = findViewById(R.id.tableLayout);
         int index = tableLayout.indexOfChild(tableRow) + 1; // Get the index to insert the new row below the section
         tableLayout.addView(newRow, index);
+
+        //add to corresponding section of kanban
+        kanban.addView(kanbanTask);
     }
 
     @Override
     public void onDialogDismissed() {
         onResume(); // Refresh the task list when the dialog is dismissed
+    }
+
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
     }
 }
