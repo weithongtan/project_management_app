@@ -14,6 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Project_management_app.Starting">
         <activity
+            android:name=".ProjectAddMember"
+            android:exported="false"
+            android:theme="@style/Theme.Project_management_app"/>
+        <activity
             android:name=".UploadProfilePicActivity"
             android:exported="false"
             android:theme="@style/Theme.Project_management_app"/>

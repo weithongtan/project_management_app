@@ -18,6 +18,8 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,8 +47,6 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
     private Spinner sectionOptions, priorityOptions;
     private TextView submitTaskButton, dueDate;
     private EditText taskName, description;
-    private OnTaskSubmitListener taskSubmitListener;
-    private HashMap<String, Object> tasks;
     private Project project;
 
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
@@ -55,9 +55,6 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         void onTaskSubmit(Task tasks);
     }
 
-//    public void setTaskSubmitListerner(OnTaskSubmitListener listener){
-//        this.taskSubmitListener = listener;
-//    }
 
     public interface OnDialogDismissListener {
         void onDialogDismissed();
@@ -128,17 +125,17 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
                     if (committed) {
                         if(isFilled()){
 
-
                             Task newTask = new Task(UUID.randomUUID().toString(),taskName.getText().toString(),dueDate.getText().toString(),
                                     priorityOptions.getSelectedItem().toString(),sectionOptions.getSelectedItem().toString(),
                                     description.getText().toString(),projectId);
-
+                            newTask.getUserEmails().add(getCurrentUserEmail());
 //                            taskSubmitListener.onTaskSubmit(newTask); // add task row to project list screen
 
                             // update task and project in realtime database
                             Map<String, Object> childUpdates = new HashMap<>();
                             childUpdates.put("/task/" + newTask.getTaskId(), newTask);
-                            childUpdates.put("/project/"+newTask.getProjectId()+"/taskId/" + newTask.getTaskId(), true);
+                            childUpdates.put("/projects/"+newTask.getProjectId()+"/taskId/" + newTask.getTaskId(), true);
+                            childUpdates.put("/Registered Users/" + getCurrentUserId()+"/taskId/" + newTask.getTaskId(), true);
 
                             database.updateChildren(childUpdates);
 
@@ -159,6 +156,22 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         return view;
     }
 
+    private String getCurrentUserEmail() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            return currentUser.getEmail();
+        }
+        return null;
+    }
+    private String getCurrentUserId() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            return currentUser.getUid();
+        }
+        return null;
+    }
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);

@@ -1,32 +1,28 @@
 package utar.edu.project_management_app.model;
 
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Project {
     private String projectId;
     private String projectName;
     private String dueDate;
-    private String timeCreation;
-    private List<String> taskId; // A project has many tasks
-    private List<String> userId; // A project has many users
-    // Constructors, getters, and setters
-
+    private List<String> taskId;
+    private List<String> emails = new ArrayList<>();
 
     public Project() {
     }
 
-
-    public Project(String projectId, String projectName, String dueDate, String timeCreation, List<String> taskId, List<String> userId) {
+    public Project(String projectId, String projectName, String dueDate, List<String> taskId, List<String> emails) {
         this.projectId = projectId;
         this.projectName = projectName;
         this.dueDate = dueDate;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        this.timeCreation = LocalDateTime.now().format(formatter);
+        this.taskId = taskId;
+        this.emails = emails;
     }
 
+    // Getters and Setters
     public String getProjectId() {
         return projectId;
     }
@@ -40,7 +36,6 @@ public class Project {
     }
 
     public void setProjectName(String projectName) {
-
         this.projectName = projectName;
     }
 
@@ -48,8 +43,8 @@ public class Project {
         return dueDate;
     }
 
-    public String getTimeCreation() {
-        return timeCreation;
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
     }
 
     public List<String> getTaskId() {
@@ -60,11 +55,12 @@ public class Project {
         this.taskId = taskId;
     }
 
-    public List<String> getUserId() {
-        return userId;
+    public List<String> getEmails() {
+        return emails;
     }
 
-    public void setUserId(List<String> userId) {
-        this.userId = userId;
+    public void setEmails(List<String> emails) {
+        this.emails = emails;
     }
 }
+
