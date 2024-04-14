@@ -8,6 +8,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,17 +24,15 @@ public class Task implements Serializable {
     private String section;
     private String description;
     private String projectId; // A task belongs to a project
-    private List<String> userId; // A task has many users
+    private List<String> userEmails = new ArrayList<>(); // A task has many users
 
 
     // Constructors, getters, and setters
     public Task() {
+        userEmails = new ArrayList<>();  // Ensure list is never null
     }
 
-    public Task(String taskId, String taskName) {
-        this.taskId = taskId;
-        this.taskName = taskName;
-    }
+
 
     public Task(String taskId, String taskName, String dueDate, String priority, String section, String description, String projectId) {
         this.taskId = taskId;
@@ -101,7 +100,14 @@ public class Task implements Serializable {
         return projectId;
     }
 
-    public void addTaskToDatabase(){
+    public List<String> getUserEmails() {
+        if (userEmails == null) {
+            userEmails = new ArrayList<>();
+        }
+        return userEmails;
+    }
 
+    public void setUserEmails(List<String> userEmails) {
+        this.userEmails = userEmails;
     }
 }

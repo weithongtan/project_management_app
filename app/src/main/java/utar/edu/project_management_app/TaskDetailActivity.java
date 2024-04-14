@@ -5,8 +5,12 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -14,21 +18,28 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import utar.edu.project_management_app.model.Task;
@@ -37,12 +48,13 @@ import utar.edu.project_management_app.model.Task;
 public class TaskDetailActivity extends AppCompatActivity {
 
     Task clickedTask;
-    LinearLayout btn_back;
+    LinearLayout btn_back,memberItem;
     TextView tv_taskname,tv_creationDate, tv_dueDate, tv_description,edit_duedate, btn_edit_description;
     Spinner priority, section;
     EditText et_description;
-    ImageView  delete;
-
+    ImageView  delete, invite_member;
+    List<String> projectEmails;
+    List<String> newInvitedEmails;
     boolean isChanged = false;
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
     @Override
@@ -53,8 +65,10 @@ public class TaskDetailActivity extends AppCompatActivity {
         btn_back = findViewById(R.id.btn_back);
 
         clickedTask = (Task) getIntent().getSerializableExtra("clickedTask");
+        String[] projectEmailsArray = getIntent().getStringArrayExtra("ProjectMembersEmail");
+        projectEmails = Arrays.asList(projectEmailsArray);
 
-        fillDetail();
+
 
         delete = findViewById(R.id.delete);
         delete.setOnClickListener(new View.OnClickListener(){
@@ -110,6 +124,32 @@ public class TaskDetailActivity extends AppCompatActivity {
                     Map<String, Object> childUpdates = new HashMap<>();
                     childUpdates.put("/task/" + clickedTask.getTaskId(), clickedTask);
 
+                    if (newInvitedEmails!=null){
+                        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Registered Users");
+                        String taskID = clickedTask.getTaskId();
+                        // Listen for data in "Registered Users"
+                        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                                    String userEmail = userSnapshot.child("email").getValue(String.class); // Assuming there is an "email" field under each user
+
+                                    if (newInvitedEmails.contains(userEmail)) {
+                                        // This user's email is in the list of selected task user emails
+                                        DatabaseReference userTaskRef = userSnapshot.getRef().child("taskId").child(taskID);
+
+                                        userTaskRef.setValue(true);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Log.e("Firebase", "Error fetching user data", error.toException());
+                            }
+                        });
+                    }
+                    System.out.println("new: "+newInvitedEmails);
                     database.updateChildren(childUpdates);
 
                 }
@@ -117,13 +157,31 @@ public class TaskDetailActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        invite_member = findViewById(R.id.addMember);
+        invite_member.setOnClickListener(view -> inviteMember());
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh UI components that display task details
+        updateTaskDetailsUI();
+    }
+
+    private void updateTaskDetailsUI() {
+        // Assuming all data fields are updated, refresh the UI components:
+        fillDetail();  // Re-populate details to reflect any changes made
+    }
+
     private void fillDetail() {
         tv_taskname = findViewById(R.id.tv_task_name);
         tv_description = findViewById(R.id.tv_description);
         tv_dueDate = findViewById(R.id.tv_duedate);
         tv_creationDate = findViewById(R.id.tv_datecreation);
         et_description =findViewById(R.id.et_description);
+        memberItem = findViewById(R.id.memberItem);
+
 
         // Set the due date from the clickedTask object
         String date_creation = clickedTask.getTimeCreation();
@@ -151,6 +209,13 @@ public class TaskDetailActivity extends AppCompatActivity {
         int selectedPriorityPosition = priority_adapter.getPosition(clickedTask.getPriority());
         priority.setSelection(selectedPriorityPosition);
 
+        System.out.println(clickedTask.getUserEmails().toString());
+        LinearLayout emailsContainer = findViewById(R.id.memberItem);
+        emailsContainer.removeAllViews();
+        for(int i = 0;i<clickedTask.getUserEmails().size(); i++){
+            addEmailView(emailsContainer, clickedTask.getUserEmails().get(i));
+        }
+
 
         // Set the text views with the task details
         tv_taskname.setText(clickedTask.getTaskName());
@@ -166,9 +231,14 @@ public class TaskDetailActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         DatabaseReference taskRef = database.child("task").child(clickedTask.getTaskId());
                         taskRef.removeValue();
-                        DatabaseReference projectTaskRef = database.child("project").child(clickedTask.getProjectId()).child("taskId").child(clickedTask.getTaskId());
+                        DatabaseReference projectTaskRef = database.child("projects").child(clickedTask.getProjectId()).child("taskId").child(clickedTask.getTaskId());
                         projectTaskRef.removeValue();
+
+                        removeTaskIdFromUsers();
+
                         DatabaseReference taskCounterRef = database.child("taskCounter");
+
+
                         taskCounterRef.runTransaction(new Transaction.Handler() {
                             @Override
                             public Transaction.Result doTransaction(MutableData mutableData) {
@@ -226,6 +296,151 @@ public class TaskDetailActivity extends AppCompatActivity {
 
         // Show DatePickerDialog
         datePickerDialog.show();
+    }
+    private void inviteMember() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.activity_invite_member, null);
+        dialogBuilder.setView(dialogView);
+
+
+        EditText editText = dialogView.findViewById(R.id.editTextEmail);
+
+        AutoCompleteTextView autoCompleteTextView = new AutoCompleteTextView(this);
+
+        // Copy properties from the EditText to the AutoCompleteTextView
+        autoCompleteTextView.setId(editText.getId());
+        autoCompleteTextView.setLayoutParams(editText.getLayoutParams());
+        autoCompleteTextView.setHint(editText.getHint());
+        autoCompleteTextView.setImeOptions(editText.getImeOptions());
+        autoCompleteTextView.setInputType(editText.getInputType());
+        autoCompleteTextView.setText(editText.getText());
+        autoCompleteTextView.setSelection(editText.getSelectionStart(), editText.getSelectionEnd());
+
+        List<String> availableEmails = new ArrayList<>();
+
+        for (String availableEmail: projectEmails
+             ) {
+            if (!clickedTask.getUserEmails().contains(availableEmail)){
+                availableEmails.add(availableEmail);
+            }
+        }
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, availableEmails);
+        autoCompleteTextView.setAdapter(adapter);
+
+        // Replace the EditText with the AutoCompleteTextView in the parent view
+        ViewGroup parentView = (ViewGroup) editText.getParent();
+        int index = parentView.indexOfChild(editText);
+        parentView.removeView(editText);
+        parentView.addView(autoCompleteTextView, index);
+
+        LinearLayout emailsContainer = dialogView.findViewById(R.id.emailsContainer);
+        Button buttonAdd = dialogView.findViewById(R.id.addButton);
+        Button buttonDone = dialogView.findViewById(R.id.buttonDone);
+
+        for (String invitedEmail:clickedTask.getUserEmails()
+             ) {
+            addEmailView(emailsContainer,invitedEmail);
+        }
+
+        newInvitedEmails = new ArrayList<>();
+        buttonAdd.setOnClickListener(view -> {
+            String email = autoCompleteTextView.getText().toString().trim();
+            if (!email.isEmpty()) {
+                List<String> userId = clickedTask.getUserEmails();
+                userId.add(userId.size(), email);
+                clickedTask.setUserEmails(userId);
+                newInvitedEmails.add(email);
+
+                addEmailView(emailsContainer, email);
+                autoCompleteTextView.setText(""); // Clear input field after adding
+                isChanged = true;
+            } else {
+                autoCompleteTextView.setError("Email cannot be empty");
+            }
+        });
+
+        AlertDialog alertDialog = dialogBuilder.create();
+        buttonDone.setOnClickListener(view -> {
+            // Assuming updates to clickedTask are made and persisted somewhere in the above code
+            alertDialog.dismiss();  // Dismiss the dialog
+
+            // Trigger a refresh or update if necessary (see Step 2 for how this can be handled)
+            onResume();   // Indicate that changes were made if returning from this activity
+        });
+        alertDialog.show();
+    }
+
+    private String getCurrentUserEmail() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            return currentUser.getEmail();
+        }
+        return  null;
+    }
+    private void addEmailView(LinearLayout container, String email) {
+        View emailView = LayoutInflater.from(this).inflate(R.layout.email_item, null);
+        TextView emailText = emailView.findViewById(R.id.emailText);
+        TextView deleteButton = emailView.findViewById(R.id.deleteButton);
+
+        if (email.equals(getCurrentUserEmail())){
+            deleteButton.setVisibility(View.GONE);
+        }
+
+        emailText.setText(email);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                container.removeView(emailView);
+                List<String> userId = clickedTask.getUserEmails();
+                if (userId != null && userId.contains(email)) {
+                    userId.remove(email);
+                    clickedTask.setUserEmails(userId);
+                    isChanged = true;
+                }
+                // Ensure this list is also properly managed
+
+            }
+        });
+
+
+        container.addView(emailView);
+    }
+    public void removeTaskIdFromUsers() {
+        List<String> selectedTaskUserEmails = clickedTask.getUserEmails(); // List of emails to check against
+        String taskID = clickedTask.getTaskId(); // Task ID to remove
+
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Registered Users");
+
+        // Listen for data in "Registered Users"
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String userEmail = userSnapshot.child("email").getValue(String.class); // Assuming there is an "email" field under each user
+
+                    if (selectedTaskUserEmails.contains(userEmail)) {
+                        // This user's email is in the list of selected task user emails
+                        DatabaseReference userTaskRef = userSnapshot.getRef().child("taskId").child(taskID);
+
+                        // Remove the taskId from this user's list
+                        userTaskRef.removeValue().addOnSuccessListener(aVoid -> {
+                            Log.d("Firebase", "Task ID removed successfully for user with email: " + userEmail);
+                        }).addOnFailureListener(e -> {
+                            Log.e("Firebase", "Failed to remove task ID for user with email: " + userEmail, e);
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("Firebase", "Error fetching user data", databaseError.toException());
+            }
+        });
     }
 
 }

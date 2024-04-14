@@ -10,6 +10,10 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+
+import android.widget.Button;
+import android.widget.EditText;
+
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -19,7 +23,12 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.view.LayoutInflater;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,7 +38,13 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import java.util.List;
+import java.util.Map;
 
 import utar.edu.project_management_app.model.Task;
 
@@ -42,7 +57,14 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     private List<ImageView> dropDownButtonSectionList;
     private List<LinearLayout> kanbanList;
     private String projectId ;
+
     private String viewType;
+
+    private ImageView addMember;
+
+    private List<String> projectEmails = new ArrayList<>();;
+    private List<String> newInvitedEmails = new ArrayList<>();;
+
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +76,11 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         // Retrieve the project ID from the intent
         // Todo get project id from here (junyi)
         projectId = getIntent().getStringExtra("projectId");
+        String projectName = getIntent().getStringExtra("projectName");
+
+
+        TextView projectname = findViewById(R.id.project_name);
+        projectname.setText(projectName);
 
         findViewById(R.id.btn_to_do).setRotation(90);
         findViewById(R.id.btn_pending).setRotation(90);
@@ -100,6 +127,9 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
             }
         );
 
+        addMember = findViewById(R.id.btn_invite_member);
+        addMember.setOnClickListener(view -> inviteMember());
+
         dropDownButtonSectionList = new ArrayList<>();
         dropDownButtonSectionList.add(findViewById(R.id.btn_to_do));
         dropDownButtonSectionList.add(findViewById(R.id.btn_pending));
@@ -120,30 +150,27 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
             args.putString("projectId", projectId); // Pass the project ID to the fragment
             bottomSheet.setArguments(args);
             bottomSheet.setOnDialogDismissListener(this); // Set the listener
-
-//            bottomSheet.setTaskSubmitListerner(taskcreate -> {
-//                addTask(taskcreate);
-//
-//
-//            });
             bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
         });
 
 
+        getCurrentProjectEmail();
 
     }
     @Override
     protected void onResume() {
         super.onResume();
         // Refresh the list of tasks
+
         refreshTaskList();
         getTask();
     }
 
+
     private void getTask(){
         DatabaseReference tasksRef = database.child("task");
         Query query = tasksRef.orderByChild("projectId").equalTo(projectId);
-        tasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 tasks = new ArrayList<>();
@@ -203,7 +230,163 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
 
     }
+    // to show the current invited email to add member screen
+    private void getCurrentProjectEmail(){
+        DatabaseReference emailsRef  = database.child("projects").child(projectId).child("emails");
 
+        emailsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                projectEmails.clear();
+
+                // Iterate through all children, these are your emails
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String email = snapshot.getValue(String.class);  // Get the value of the email
+                    System.out.println(email);
+                    projectEmails.add(email);  // Add it to your list
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle possible errors
+
+            }
+        });
+    }
+    private void inviteMember() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.activity_invite_member, null);
+        dialogBuilder.setView(dialogView);
+
+
+        EditText editTextEmail = dialogView.findViewById(R.id.editTextEmail);
+        LinearLayout emailsContainer = dialogView.findViewById(R.id.emailsContainer);
+        Button buttonAdd = dialogView.findViewById(R.id.addButton);
+        Button buttonDone = dialogView.findViewById(R.id.buttonDone);
+
+        // display existing email
+        for (String email:projectEmails) {
+            addEmailView(emailsContainer,email);
+        }
+
+        buttonAdd.setOnClickListener(view -> {
+            String email = editTextEmail.getText().toString().trim();
+            if (!email.isEmpty()) {
+                newInvitedEmails.add(email);// need to update the invited user's projectids
+                projectEmails.add(email);// to add into project emails
+                addEmailView(emailsContainer, email);
+                editTextEmail.setText(""); // Clear input field after adding
+            } else {
+                editTextEmail.setError("Email cannot be empty");
+            }
+        });
+
+        AlertDialog alertDialog = dialogBuilder.create();
+        buttonDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // check user's email with newInvitedEmails, if yes update user's project id
+                // update project's useremail list with projectemails
+
+                System.out.println(newInvitedEmails);
+                System.out.println(projectEmails);
+                if (!newInvitedEmails.isEmpty()){
+                    processInvitationsAndUpdateProjectEmails();
+                }
+
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.show();
+    }
+    private void processInvitationsAndUpdateProjectEmails() {
+        DatabaseReference usersRef = database.child("Registered Users");
+
+        // Fetch all user emails first
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, String> userEmailToIdMap = new HashMap<>();
+
+                // Collect all user emails and their IDs
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String email = userSnapshot.child("email").getValue(String.class);
+                    if (newInvitedEmails.contains(email)){
+                        userEmailToIdMap.put(email, userSnapshot.getKey());
+                    }
+                }
+
+                Iterator<String> iterator = newInvitedEmails.iterator();
+                while (iterator.hasNext()) {
+                    String item = iterator.next();
+                    if (!userEmailToIdMap.containsKey(item)) {
+                        iterator.remove();
+                        projectEmails.remove(item);
+                    }
+                }
+
+                for (Map.Entry<String, String> entry : userEmailToIdMap.entrySet()) {
+                    String userid = entry.getValue();
+
+                    // Update the database with the userid for the corresponding email
+                    DatabaseReference userProjectIdRef = usersRef.child(userid).child("ProjectId");
+                    // Assuming you want to update a value in the database, use setValue() method
+                    userProjectIdRef.child(projectId).setValue(true);
+                }
+
+                // Update project emails in Firebase after cleanup
+                updateProjectEmailsInFirebase();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("Firebase", "Error fetching users", databaseError.toException());
+            }
+        });
+    }
+
+    private void updateProjectEmailsInFirebase() {
+        DatabaseReference projectEmailsRef = database.child("projects").child(projectId).child("emails");
+        projectEmailsRef.setValue(projectEmails).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d("Firebase", "Project emails updated successfully.");
+            } else {
+                Log.e("Firebase", "Failed to update project emails.", task.getException());
+            }
+        });
+    }
+
+
+    private void addEmailView(LinearLayout container, String email) {
+        View emailView = LayoutInflater.from(this).inflate(R.layout.email_item, null);
+        TextView emailText = emailView.findViewById(R.id.emailText);
+        TextView deleteButton = emailView.findViewById(R.id.deleteButton);
+
+        emailText.setText(email);
+        if (email.equals(getCurrentUserEmail())){
+            deleteButton.setVisibility(View.GONE);
+        }
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                container.removeView(emailView);
+                projectEmails.remove(email);
+                newInvitedEmails.remove(email);
+            }
+        });
+
+        container.addView(emailView);
+    }
+    private String getCurrentUserEmail() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            return currentUser.getEmail();
+        }
+        return null;
+    }
     private void removeRowsBelowIndex(TableLayout tableLayout, int startIndex, int endIndex) {
         if (tableLayout == null) {
             Log.e("ProjectTasks", "TableLayout is null");
@@ -273,6 +456,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         String dueDate = task.getDueDate();
         String section = task.getSection();
         String priority = task.getPriority();
+        String creationDate = task.getTimeCreation();
 
         LinearLayout kanban;
         // Find the table row to add the new task based on the section
@@ -350,7 +534,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         newRow.addView(divider);
 
         TextView assigneeTextView = new TextView(this); // Placeholder for assignee, leave empty
-        assigneeTextView.setText("234");
+        assigneeTextView.setText(creationDate);
         assigneeTextView.setPadding(20, 8, 8, 8);
         newRow.addView(assigneeTextView);
 
@@ -363,6 +547,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         dueDateTextView.setText(dueDate);
         dueDateTextView.setPadding(25, 8, 8, 8);
         newRow.addView(dueDateTextView);
+
 
         //inflate tasks for kanban view
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -391,6 +576,9 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
                 Intent i = new Intent(ProjectTasks.this, TaskDetailActivity.class);
                 i.putExtra("clickedTask",  clickedtask);
+                i.putExtra("ProjectMembersEmail", projectEmails.toArray(new String[0]));
+
+
                 startActivity(i);
             }
         };
