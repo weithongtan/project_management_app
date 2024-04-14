@@ -85,7 +85,6 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         taskName = view.findViewById(R.id.ev_task_name);
         description = view.findViewById(R.id.ev_description);
 
-        description.setText(projectId);
         // Spinner for todo, pending and complete
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.section, android.R.layout.simple_spinner_item);

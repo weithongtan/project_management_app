@@ -66,6 +66,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         View includedLayout = LayoutInflater.from(this).inflate(R.layout.activity_project_tasks_menu, null);
 
         // Retrieve the project ID from the intent
+        // Todo get project id from here (junyi)
         projectId = getIntent().getStringExtra("projectId");
 
 
@@ -73,6 +74,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         findViewById(R.id.btn_pending).setRotation(90);
         findViewById(R.id.btn_done).setRotation(90);
 
+        // Todo kanban (Junyi)
         // change view
         spinnerOptions = findViewById(R.id.SectionOptions);
         // add drop down item

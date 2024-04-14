@@ -1,6 +1,8 @@
 package utar.edu.project_management_app.model;
 
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Project {
@@ -16,9 +18,13 @@ public class Project {
     public Project() {
     }
 
-    public Project(String projectId, String projectName) {
+
+    public Project(String projectId, String projectName, String dueDate, String timeCreation, List<String> taskId, List<String> userId) {
         this.projectId = projectId;
         this.projectName = projectName;
+        this.dueDate = dueDate;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        this.timeCreation = LocalDateTime.now().format(formatter);
     }
 
     public String getProjectId() {
