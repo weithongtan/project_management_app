@@ -492,6 +492,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         dueDateTextView.setPadding(25, 8, 8, 8);
         newRow.addView(dueDateTextView);
 
+
         taskNameTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
