@@ -1,8 +1,12 @@
 package utar.edu.project_management_app;
 
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -28,53 +32,90 @@ import utar.edu.project_management_app.model.Task;
 public class MyTaskListAdapter extends BaseExpandableListAdapter {
 
     private Context context;
-    private List<String> expandableListTitle;
-    private HashMap<String, List<String>> expandableListDetail;
-    private List<Task> tasks;
+    private List<String> tasks;
+    Map<String, List<Task>> sectionTasks;
+    List<String> expandableListTitle;
     private String userId;
     private FirebaseAuth authProfile;
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-    public MyTaskListAdapter(Context context, List<String> expandableListTitle,
-                                       HashMap<String, List<String>> expandableListDetail) {
+    public MyTaskListAdapter(Context context) {
         this.context = context;
-        this.expandableListTitle = expandableListTitle;
-        this.expandableListDetail = expandableListDetail;
+        sectionTasks = new HashMap<>();
+        sectionTasks.put("To Do",new ArrayList<>());
+        sectionTasks.put("Pending",new ArrayList<>());
+        sectionTasks.put("Done",new ArrayList<>());
+        expandableListTitle = Arrays.asList("To Do", "Pending", "Done");
+        getTask();
     }
 
-//    private void getTask(){
-//        authProfile = FirebaseAuth.getInstance();
-//        FirebaseUser firebaseUser = authProfile.getCurrentUser();
-//
-//        if (firebaseUser==null){
-//            Toast.makeText(context, "Something went wrong! User's details are not available", Toast.LENGTH_LONG).show();
-//        }
-//        else {
-//            userId = firebaseUser.getUid();
-//            DatabaseReference tasksRef = database.child("task");
-//            Query query = tasksRef.orderByChild("userId").equalTo(userId);
-//            tasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(DataSnapshot dataSnapshot) {
-//                    tasks = new ArrayList<>();
-//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                        Task task = snapshot.getValue(Task.class);
-//                        tasks.add(task);
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError databaseError) {
-//                    // Handle possible errors
-//
-//                }
-//            });
-//        }
-//    }
+    private void getTask(){
+        authProfile = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = authProfile.getCurrentUser();
+
+        if (firebaseUser==null){
+            Toast.makeText(context, "Something went wrong! User's details are not available", Toast.LENGTH_LONG).show();
+        }
+        else {
+            userId = firebaseUser.getUid();
+            try {
+                DatabaseReference tasksRef = database.child("Registered Users");
+                Query query = tasksRef.child(userId).child("taskId");
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        tasks = new ArrayList<>();
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            String taskId = snapshot.getKey(); // Getting the taskId from the snapshot key
+                            tasks.add(taskId);
+                        }
+                        fetchTasks();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // Handle possible errors
+
+                    }
+                });
+
+
+            }catch (Exception e){
+                Toast.makeText(context, "No Tasks Found", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void fetchTasks() {
+        DatabaseReference tasksRef = database.child("task");
+        for (String taskId : tasks) {
+            Query query = tasksRef.orderByKey().equalTo(taskId);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        Task task = snapshot.getValue(Task.class);
+                        String section = task.getSection();
+                        List<Task> sectionList = sectionTasks.getOrDefault(section, new ArrayList<>());
+                        sectionList.add(task);
+                        sectionTasks.put(section, sectionList);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Handle possible errors
+                }
+            });
+        }
+    }
     @Override
     public Object getChild(int listPosition, int expandedListPosition) {
-        return this.expandableListDetail.get(this.expandableListTitle.get(listPosition))
-                .get(expandedListPosition);
+        String section = expandableListTitle.get(listPosition);
+        // Get tasks for this section
+        List<Task> tasksInSection = sectionTasks.get(section);
+        // Return the task at the expanded list position
+        return tasksInSection.get(expandedListPosition);
     }
 
     @Override
@@ -85,42 +126,32 @@ public class MyTaskListAdapter extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int listPosition, final int expandedListPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
-        final String expandedListText = (String) getChild(listPosition, expandedListPosition);
+        Task task = (Task) getChild(listPosition, expandedListPosition);
         if (convertView == null) {
             LayoutInflater layoutInflater = (LayoutInflater) this.context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = layoutInflater.inflate(R.layout.list_item, null);
         }
 
-        String[] expandedListTextArray = expandedListText.split(";");
         TextView expandedListTextView = (TextView) convertView
                 .findViewById(R.id.expandedListItem);
-        expandedListTextView.setText(expandedListTextArray[0]);
+        expandedListTextView.setText(task.getTaskName());
 
         TextView expandedListTextView1 = (TextView) convertView
                 .findViewById(R.id.expandedListItem1);
-        expandedListTextView1.setText(expandedListTextArray[1]);
+        expandedListTextView1.setText(task.getTimeCreation());
 
         TextView expandedListTextView2 = (TextView) convertView
                 .findViewById(R.id.expandedListItem2);
-        expandedListTextView2.setText(expandedListTextArray[2]);
-
+        expandedListTextView2.setText(task.getDueDate());
+        convertView.setTag(task.getTaskId());
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(expandedListTextArray[0],expandedListTextArray[1]);
-//                Task clickedtask = new Task();
-//                for (int i = 0;i<tasks.size();i++){
-//                    if (v.getTag() == tasks.get(i).getTaskId()){
-//                        clickedtask = tasks.get(i);
-//                        break;
-//                    }
-//                }
-//
-//
-//                Intent i = new Intent(context, TaskDetailActivity.class);
-//                i.putExtra("clickedTask",  clickedtask);
-//                context.startActivity(i);
+                Intent i = new Intent(context, TaskDetailActivity.class);
+                i.putExtra("clickedTask",  task);
+                i.putExtra("ProjectMembersEmail", task.getUserEmails().toArray(new String[0]));
+                context.startActivity(i);
             }
         });
         return convertView;
@@ -128,8 +159,14 @@ public class MyTaskListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int listPosition) {
-        return this.expandableListDetail.get(this.expandableListTitle.get(listPosition))
-                .size();
+        String section = expandableListTitle.get(listPosition);
+        List<Task> tasksInSection = sectionTasks.get(section);
+        if (tasksInSection != null){
+            return tasksInSection.size();
+        }
+        else{
+            return 0;
+        }
     }
 
     @Override

@@ -577,8 +577,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
                 Intent i = new Intent(ProjectTasks.this, TaskDetailActivity.class);
                 i.putExtra("clickedTask",  clickedtask);
                 i.putExtra("ProjectMembersEmail", projectEmails.toArray(new String[0]));
-
-
                 startActivity(i);
             }
         };
