@@ -38,6 +38,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.List;
+
 public class ProjectListFragment extends Fragment implements ProjectCreationBottomSheetDialogFragment.OnProjectCreatedListener {
 
     private String currentUserId;
@@ -66,8 +68,8 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
                     projectRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            String projectName = snapshot.child("Project Name").getValue(String.class);
-                            String selectedDate = snapshot.child("Due Date").getValue(String.class);
+                            String projectName = snapshot.child("projectName").getValue(String.class);
+                            String selectedDate = snapshot.child("dueDate").getValue(String.class);
                             updateUIWithProject(projectId, projectName, selectedDate);
                         }
 
@@ -115,22 +117,16 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             }
         });
 
-        TextView project1 = view.findViewById(R.id.project1);
-        project1.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getActivity(), ProjectTasks.class);
-                i.putExtra("projectId", "1");
-                startActivity(i);
-            }
-        });
-
         return view;
     }
 
     private void clearUI() {
-        TableLayout tableLayout = requireView().findViewById(R.id.tableLayout);
-        tableLayout.removeAllViews();
+        if (getView() != null) {
+            TableLayout tableLayout = getView().findViewById(R.id.tableLayout);
+            tableLayout.removeAllViews();
+        } else {
+            Log.e("ProjectListFragment", "View is not available when trying to clear UI.");
+        }
     }
 
     private String getCurrentUserId() {
@@ -141,6 +137,8 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
         }
         return null;
     }
+
+
     private void setupSearchFunctionality() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -218,9 +216,11 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             return; // Exit the method to avoid adding a new row
         }
 
+
         // If no existing row is found, create a new row and add it to the UI
         TableRow newRow = new TableRow(requireContext());
         newRow.setTag(projectId);
+
 
         TextView projectTextView = new TextView(requireContext());
         projectTextView.setText(projectName);
@@ -230,6 +230,17 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
         ));
         projectTextView.setGravity(Gravity.CENTER_VERTICAL);
         projectTextView.setPadding(30, 8, 50, 8);
+        // set click event to navigate to project tasks
+        projectTextView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+
+                Intent i = new Intent(getActivity(), ProjectTasks.class);
+                i.putExtra("projectId", projectId);
+                i.putExtra("projectName",projectName);
+                startActivity(i);
+            }
+        });
 
         TextView progressPercentTextView = new TextView(requireContext());
         progressPercentTextView.setText("0%");
@@ -274,6 +285,7 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
                         tableLayout.removeView(newRow);
 
                         DatabaseReference projectRef = FirebaseDatabase.getInstance().getReference().child("projects").child(projectId);
+//                        List<String> useremail = projectRef.child("emails");
                         projectRef.removeValue();
 
                         DatabaseReference userProjectRef = FirebaseDatabase.getInstance().getReference().child("Registered Users").child(currentUserId).child("ProjectId").child(projectId);
@@ -358,8 +370,8 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
 
         // Update project details in the Firebase Realtime Database
         DatabaseReference projectRef = FirebaseDatabase.getInstance().getReference().child("projects").child(projectId);
-        projectRef.child("Project Name").setValue(updatedProjectName);
-        projectRef.child("Due Date").setValue(updatedDueDate);
+        projectRef.child("projectName").setValue(updatedProjectName);
+        projectRef.child("dueDate").setValue(updatedDueDate);
 
         // Show a toast message to indicate that the project details were updated successfully
         Toast.makeText(requireContext(), "Project details updated successfully", Toast.LENGTH_SHORT).show();
