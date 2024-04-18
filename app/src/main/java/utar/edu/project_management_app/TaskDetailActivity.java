@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,8 +32,6 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -55,7 +52,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     ImageView  delete, invite_member;
     List<String> projectEmails;
     List<String> newInvitedEmails;
-    boolean isChanged = false;
+//    boolean isChanged = false;
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +80,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         edit_duedate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 showDatePickerDialog();
             }
         });
@@ -107,54 +105,61 @@ public class TaskDetailActivity extends AppCompatActivity {
                     tv_description.setVisibility(View.VISIBLE);
                     et_description.setVisibility(View.GONE);
                 }
-                isChanged = true;
+//                isChanged = true;
             }
         });
-        btn_back.setOnClickListener(new View.OnClickListener(){
+        btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Set values on the clickedTask
+                clickedTask.setDueDate(tv_dueDate.getText().toString());
+                clickedTask.setPriority(priority.getSelectedItem().toString());
+                clickedTask.setSection(section.getSelectedItem().toString());
+                clickedTask.setDescription(tv_description.getText().toString());
 
-                if (isChanged){
-                    clickedTask.setDueDate(tv_dueDate.getText().toString());
-                    clickedTask.setPriority(priority.getSelectedItem().toString());
-                    clickedTask.setSection(section.getSelectedItem().toString());
-                    clickedTask.setDescription(tv_description.getText().toString());
+                // Prepare database updates
+                Map<String, Object> childUpdates = new HashMap<>();
+                childUpdates.put("/task/" + clickedTask.getTaskId(), clickedTask);
 
-                    // update task and project in realtime database
-                    Map<String, Object> childUpdates = new HashMap<>();
-                    childUpdates.put("/task/" + clickedTask.getTaskId(), clickedTask);
+                // Perform the updates asynchronously
+                DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+                database.updateChildren(childUpdates).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // All updates completed successfully
+                        // Handle the newInvitedEmails update
+                        if (newInvitedEmails != null) {
+                            DatabaseReference usersRef = database.child("Registered Users");
+                            String taskID = clickedTask.getTaskId();
 
-                    if (newInvitedEmails!=null){
-                        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Registered Users");
-                        String taskID = clickedTask.getTaskId();
-                        // Listen for data in "Registered Users"
-                        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                                    String userEmail = userSnapshot.child("email").getValue(String.class); // Assuming there is an "email" field under each user
-
-                                    if (newInvitedEmails.contains(userEmail)) {
-                                        // This user's email is in the list of selected task user emails
-                                        DatabaseReference userTaskRef = userSnapshot.getRef().child("taskId").child(taskID);
-
-                                        userTaskRef.setValue(true);
+                            usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                                        String userEmail = userSnapshot.child("email").getValue(String.class);
+                                        if (newInvitedEmails.contains(userEmail)) {
+                                            DatabaseReference userTaskRef = userSnapshot.getRef().child("taskId").child(taskID);
+                                            userTaskRef.setValue(true);
+                                        }
                                     }
+                                    // Once all asynchronous operations are complete, finish the activity
+                                    finish();
                                 }
-                            }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Log.e("Firebase", "Error fetching user data", error.toException());
-                            }
-                        });
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e("Firebase", "Error fetching user data", error.toException());
+                                    // Consider error handling here
+                                }
+                            });
+                        } else {
+                            // If newInvitedEmails is null, you can finish the activity directly
+                            finish();
+                        }
+                    } else {
+                        // Handle errors in the database update here
+                        Log.e("Firebase", "Error updating database", task.getException());
                     }
-                    System.out.println("new: "+newInvitedEmails);
-                    database.updateChildren(childUpdates);
-
-                }
-
-                finish();
+                });
             }
         });
 
@@ -289,7 +294,7 @@ public class TaskDetailActivity extends AppCompatActivity {
                         String date = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year;
                         tv_dueDate.setText(date);
                         tv_dueDate.setTextColor(Color.BLACK);
-                        isChanged = true;
+//                        isChanged = true;
                     }
                 }, year, month, dayOfMonth);
 
@@ -356,7 +361,7 @@ public class TaskDetailActivity extends AppCompatActivity {
 
                 addEmailView(emailsContainer, email);
                 autoCompleteTextView.setText(""); // Clear input field after adding
-                isChanged = true;
+//                isChanged = true;
             } else {
                 autoCompleteTextView.setError("Email cannot be empty");
             }
@@ -399,7 +404,7 @@ public class TaskDetailActivity extends AppCompatActivity {
                 if (userId != null && userId.contains(email)) {
                     userId.remove(email);
                     clickedTask.setUserEmails(userId);
-                    isChanged = true;
+//                    isChanged = true;
                 }
                 // Ensure this list is also properly managed
 

@@ -39,6 +39,7 @@ public class MyTaskListAdapter extends BaseExpandableListAdapter {
     private FirebaseAuth authProfile;
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
+    //initialize lists
     public MyTaskListAdapter(Context context) {
         this.context = context;
         sectionTasks = new HashMap<>();
@@ -50,6 +51,7 @@ public class MyTaskListAdapter extends BaseExpandableListAdapter {
     }
 
     private void getTask(){
+        //find tasks related to user and save task id in tasks
         authProfile = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = authProfile.getCurrentUser();
 
@@ -87,6 +89,7 @@ public class MyTaskListAdapter extends BaseExpandableListAdapter {
     }
 
     private void fetchTasks() {
+        //save task objects based on id into sectionTasks map
         DatabaseReference tasksRef = database.child("task");
         for (String taskId : tasks) {
             Query query = tasksRef.orderByKey().equalTo(taskId);
@@ -109,6 +112,7 @@ public class MyTaskListAdapter extends BaseExpandableListAdapter {
             });
         }
     }
+
     @Override
     public Object getChild(int listPosition, int expandedListPosition) {
         String section = expandableListTitle.get(listPosition);
@@ -127,6 +131,7 @@ public class MyTaskListAdapter extends BaseExpandableListAdapter {
     public View getChildView(int listPosition, final int expandedListPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
         Task task = (Task) getChild(listPosition, expandedListPosition);
+        //add new entry to the correct section
         if (convertView == null) {
             LayoutInflater layoutInflater = (LayoutInflater) this.context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -145,6 +150,7 @@ public class MyTaskListAdapter extends BaseExpandableListAdapter {
                 .findViewById(R.id.expandedListItem2);
         expandedListTextView2.setText(task.getDueDate());
         convertView.setTag(task.getTaskId());
+        //add listener to bring it to the detail page
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
