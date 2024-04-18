@@ -86,7 +86,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         findViewById(R.id.btn_pending).setRotation(90);
         findViewById(R.id.btn_done).setRotation(90);
 
-        // Todo kanban (Junyi)
         // change view
         spinnerOptions = findViewById(R.id.SectionOptions);
         // add drop down item
@@ -101,7 +100,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // Get the selected item from the spinner
                 String selectedItem = parent.getItemAtPosition(position).toString();
-                // Run code based on the selected item
+                // Hide or show view based on the selected item
                 if (selectedItem.equals("List")) {
                     viewType = "List";
                     findViewById(R.id.listView).setVisibility(View.VISIBLE);
@@ -566,16 +565,8 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         View.OnClickListener taskClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Task clickedtask = new Task();
-                for (int i = 0;i<tasks.size();i++){
-                    if (v.getTag() == tasks.get(i).getTaskId()){
-                        clickedtask = tasks.get(i);
-                        break;
-                    }
-                }
-
                 Intent i = new Intent(ProjectTasks.this, TaskDetailActivity.class);
-                i.putExtra("clickedTask",  clickedtask);
+                i.putExtra("clickedTask",  task);
                 i.putExtra("ProjectMembersEmail", projectEmails.toArray(new String[0]));
                 startActivity(i);
             }
