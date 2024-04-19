@@ -5,8 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
 
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        
+
         loginEmail = findViewById(R.id.email_input);
         loginPassword = findViewById(R.id.password_input);
         loginButton = findViewById(R.id.loginTV);
@@ -156,4 +159,6 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this, "You can login now", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }

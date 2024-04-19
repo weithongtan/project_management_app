@@ -18,12 +18,16 @@
         android:layout_gravity="center"
         app:srcCompat="@drawable/backward_icon" />
 
-    <TextView
+    <ImageView
         android:id="@+id/profile_view"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center"
-        android:background="@drawable/circle_profile" />
+        android:scaleType="centerCrop"
+        android:gravity="center"
+        android:text="@string/user_initials"
+        android:background="@drawable/circle_profile"
+        android:contentDescription="@string/user_initials" />
 
     <LinearLayout
         android:layout_width="163dp"

@@ -6,6 +6,8 @@ import androidx.core.splashscreen.SplashScreen;
 import androidx.fragment.app.Fragment;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,7 +43,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Show bottom nav bar
+        createNotificationChannels();
+
+        authProfile = FirebaseAuth.getInstance();
+        firebaseUser = authProfile.getCurrentUser();
+
+
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
 
@@ -84,4 +91,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    private void createNotificationChannels() {
+        // Unique ID for the notification channel
+        String channelId = "add_user";
+
+        // Create the notification channel
+        CharSequence channelName = "Add User";
+        String channelDescription = "Notify if added to project or task";
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+        channel.setDescription(channelDescription);
+
+        // Register the notification channel
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
+    }
+
 }
