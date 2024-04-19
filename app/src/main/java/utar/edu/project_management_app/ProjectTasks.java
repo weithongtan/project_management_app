@@ -36,6 +36,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -69,12 +72,27 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(R.layout.activity_project_tasks);
         // include the menu layout
         View includedLayout = LayoutInflater.from(this).inflate(R.layout.activity_project_tasks_menu, null);
 
+        //get profile photo
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
+        StorageReference storageRef = storage.getReference().child("DisplayPics");
+        String userId = user.getUid();
+        String profilePicPath = userId + ".jpg";
+        // Get download URL for the profile picture
+        storageRef.child(profilePicPath).getDownloadUrl().addOnSuccessListener(uri -> {
+            ImageView profileImageView = this.findViewById(R.id.profile_view);
+            Picasso.get().load(uri).transform(new CircleTransform()).into(profileImageView);
+        });
+
         // Retrieve the project ID from the intent
-        // Todo get project id from here (junyi)
         projectId = getIntent().getStringExtra("projectId");
         String projectName = getIntent().getStringExtra("projectName");
 
@@ -86,7 +104,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         findViewById(R.id.btn_pending).setRotation(90);
         findViewById(R.id.btn_done).setRotation(90);
 
-        // Todo kanban (Junyi)
         // change view
         spinnerOptions = findViewById(R.id.SectionOptions);
         // add drop down item
