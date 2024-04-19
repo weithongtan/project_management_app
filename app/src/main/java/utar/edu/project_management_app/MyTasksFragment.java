@@ -34,6 +34,7 @@ public class MyTasksFragment extends Fragment {
     ExpandableListAdapter expandableListAdapter;
     List<Task> tasks;
 
+    ImageView profileThumbnail;
     public MyTasksFragment() {
     }
 
@@ -69,6 +70,8 @@ public class MyTasksFragment extends Fragment {
         });
 
         return rootView;
+
     }
+
 
 }

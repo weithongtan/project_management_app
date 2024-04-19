@@ -29,12 +29,14 @@
                     android:layout_gravity="center"
                     app:srcCompat="@drawable/backward_icon" />
 
-                <TextView
+                <ImageView
                     android:id="@+id/profile_view"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/circle_profile" />
+                    android:layout_centerInParent="true"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/circle_profile" />
 
                 <LinearLayout
                     android:layout_width="163dp"
@@ -168,6 +170,7 @@
                             android:text="Notifications" />
 
                         <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/notificationSwitch"
                             style="@style/settingsText"
                             android:checked="true"
                             app:drawableStartCompat="@drawable/ic_notifications"
