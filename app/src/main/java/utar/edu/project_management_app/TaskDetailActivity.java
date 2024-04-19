@@ -52,20 +52,22 @@ public class TaskDetailActivity extends AppCompatActivity {
     ImageView  delete, invite_member;
     List<String> projectEmails;
     List<String> newInvitedEmails;
-//    boolean isChanged = false;
+    String currentEmail;
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_task_detail);
 
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        currentEmail = currentUser.getEmail();
         btn_back = findViewById(R.id.btn_back);
 
         clickedTask = (Task) getIntent().getSerializableExtra("clickedTask");
+
         String[] projectEmailsArray = getIntent().getStringArrayExtra("ProjectMembersEmail");
         projectEmails = Arrays.asList(projectEmailsArray);
-
-
 
         delete = findViewById(R.id.delete);
         delete.setOnClickListener(new View.OnClickListener(){
@@ -141,6 +143,13 @@ public class TaskDetailActivity extends AppCompatActivity {
                                             userTaskRef.setValue(true);
                                         }
                                     }
+                                    SendNotification.getTokens(database, newInvitedEmails, tokens -> {
+                                        // This block will execute once all tokens are ready
+                                        for (String token : tokens) {
+                                            // Send notification using the token
+                                            SendNotification.sendNotification(token, currentEmail, clickedTask.getTaskName(), "task");
+                                        }
+                                    });
                                     // Once all asynchronous operations are complete, finish the activity
                                     finish();
                                 }
@@ -378,20 +387,13 @@ public class TaskDetailActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private String getCurrentUserEmail() {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            return currentUser.getEmail();
-        }
-        return  null;
-    }
+
     private void addEmailView(LinearLayout container, String email) {
         View emailView = LayoutInflater.from(this).inflate(R.layout.email_item, null);
         TextView emailText = emailView.findViewById(R.id.emailText);
         TextView deleteButton = emailView.findViewById(R.id.deleteButton);
 
-        if (email.equals(getCurrentUserEmail())){
+        if (email.equals(currentEmail)){
             deleteButton.setVisibility(View.GONE);
         }
 
