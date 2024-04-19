@@ -170,6 +170,7 @@
                             android:text="Notifications" />
 
                         <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/notificationSwitch"
                             style="@style/settingsText"
                             android:checked="true"
                             app:drawableStartCompat="@drawable/ic_notifications"
