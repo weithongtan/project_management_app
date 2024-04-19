@@ -41,7 +41,7 @@ public class MyTasksFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // update profile pic on mytask page
+        // update profile pic on mytask 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
