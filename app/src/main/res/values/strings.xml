@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">project_management_app</string>
+    <string name="app_name">ETYY</string>
     <string name="btn_create_project">+ Create Project</string>
     <string name="tv_my_project">My Project</string>
     <string name="my_task">My Tasks</string>

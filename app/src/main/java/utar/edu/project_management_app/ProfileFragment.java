@@ -324,31 +324,6 @@ public class ProfileFragment extends Fragment {
         authProfile = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser =authProfile.getCurrentUser();
 
-//        buttonSave.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String newUsername = editTextUsername.getText().toString();
-//                String email = firebaseUser.getEmail();
-//                //Storing info to Real-time database
-//                ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(newUsername, email);
-//
-//                DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("Registered Users");
-//                referenceProfile.child(firebaseUser.getUid()).setValue(writeUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-//                        if(task.isSuccessful()){
-//                            editUsernameDialog.dismiss();
-//                            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-//                            transaction.replace(R.id.fragment_container, new ProfileFragment()).commit();
-//
-//                        }else {
-//                            Toast.makeText(getActivity(), "Failed to update username", Toast.LENGTH_LONG).show();
-//                        }
-//                    }
-//                });
-//
-//            }
-//        });
 
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
