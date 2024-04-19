@@ -288,12 +288,31 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        tableLayout.removeView(newRow);
-
+                        // Get a reference to the project node
                         DatabaseReference projectRef = FirebaseDatabase.getInstance().getReference().child("projects").child(projectId);
-//                        List<String> useremail = projectRef.child("emails");
+
+                        // Get a reference to the tasks node
+                        DatabaseReference tasksRef = FirebaseDatabase.getInstance().getReference().child("task");
+
+                        // Remove all tasks associated with the project
+                        tasksRef.orderByChild("projectId").equalTo(projectId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
+                                    taskSnapshot.getRef().removeValue();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                // Handle error
+                            }
+                        });
+
+                        // Remove the project itself
                         projectRef.removeValue();
 
+                        // Remove the project from the user's projects list
                         DatabaseReference userProjectRef = FirebaseDatabase.getInstance().getReference().child("Registered Users").child(currentUserId).child("ProjectId").child(projectId);
                         userProjectRef.removeValue();
                     }

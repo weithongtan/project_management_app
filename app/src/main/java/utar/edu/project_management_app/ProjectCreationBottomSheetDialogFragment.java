@@ -163,7 +163,8 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
 
 
         // Get reference to the current user's projects node
-        DatabaseReference currentUserProjectsRef = FirebaseDatabase.getInstance().getReference().child("Registered Users").child(userId).child("projects");
+        DatabaseReference currentUserProjectsRef = FirebaseDatabase.getInstance().getReference()
+                .child("Registered Users").child(userId).child("projects");
         // Push the project data under the user's projects node with the incremented project counter as the key
         DatabaseReference newProjectRef = currentUserProjectsRef.push();
         String projectId = newProjectRef.getKey();  // Get the generated project ID
@@ -178,7 +179,8 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
         projectsRef.setValue(newProject);
 
         // Update the user's projectsId list
-        DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference().child("Registered Users").child(userId);
+        DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference()
+                .child("Registered Users").child(userId);
         currentUserRef.child("ProjectId").child(projectId).setValue(true); // Add project ID to the user's projectsId list
 
         /*if (projectCreatedListener != null) {
