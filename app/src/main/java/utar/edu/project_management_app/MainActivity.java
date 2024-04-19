@@ -35,24 +35,13 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigationView;
-
-    private FirebaseAuth authProfile;
-    private FirebaseUser firebaseUser;
-    private String token;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        //SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        authProfile = FirebaseAuth.getInstance();
-        firebaseUser = authProfile.getCurrentUser();
-
-
+        //Show bottom nav bar
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
 
@@ -72,9 +61,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
-        // By using switch we can easily get
-        // the selected fragment
-        // by using there id.
         Fragment selectedFragment = null;
         int itemId = item.getItemId();
         if (itemId == R.id.home) {
@@ -84,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
         } else if (itemId == R.id.profile) {
             selectedFragment = new ProfileFragment();
         }
-        // It will help to replace the
-        // one fragment to other.
         if (selectedFragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
         }
@@ -93,19 +77,11 @@ public class MainActivity extends AppCompatActivity {
     };
 
     void getFCMToken(){
-
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
-                token = task.getResult();
+                String token = task.getResult();
                 Log.i("My Token", token);
-
             }
         });
     }
-
-
-
-
-
-
 }
