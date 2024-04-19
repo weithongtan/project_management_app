@@ -185,24 +185,6 @@
                             android:layout_marginTop="20dp"
                             android:background="?android:attr/listDivider" />
 
-                        <TextView
-                            style="@style/viewParent.headerText.settingsMiniTitle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Preferences" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/darkModeSwitch"
-                            style="@style/settingsText"
-                            app:drawableStartCompat="@drawable/ic_dark_mode"
-                            android:text="Dark Mode" />
-
-                        <View
-                            android:id="@+id/divider3"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginTop="20dp"
-                            android:background="?android:attr/listDivider" />
 
                         <TextView
                             android:id="@+id/logout"
