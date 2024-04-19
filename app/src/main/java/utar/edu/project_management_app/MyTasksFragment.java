@@ -11,11 +11,16 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +40,18 @@ public class MyTasksFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        // update profile pic on mytask page
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser user = auth.getCurrentUser();
+        StorageReference storageRef = storage.getReference().child("DisplayPics");
+        String userId = user.getUid();
+        String profilePicPath = userId + ".jpg";
+        // Get download URL for the profile picture
+        storageRef.child(profilePicPath).getDownloadUrl().addOnSuccessListener(uri -> {
+            ImageView profileImageView = requireActivity().findViewById(R.id.profile_view);
+            Picasso.get().load(uri).transform(new CircleTransform()).into(profileImageView);
+        });
     }
 
     @Override
@@ -51,6 +67,7 @@ public class MyTasksFragment extends Fragment {
         backButton.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().popBackStack();
         });
+
         return rootView;
     }
 
