@@ -129,6 +129,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    //If email is not verified
     private void showAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
         builder.setTitle("Email Not Verified");

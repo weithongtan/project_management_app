@@ -1,9 +1,7 @@
 package utar.edu.project_management_app;
 
 import static android.content.Context.MODE_PRIVATE;
-
 import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.app.NotificationManager;
 import android.content.Context;
 import android.app.AlertDialog;
@@ -21,14 +19,12 @@ import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -43,7 +39,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -59,20 +54,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProfileFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ProfileFragment extends Fragment {
 
     private TextView profileEmail, profileUsername, logoutTV, editProfileTV, changePwTV;
     private String username, email;
     private ImageButton editProfile;
-    private ImageView profileIV,profileThumbnail;
+    private ImageView profileIV,profileThumbnail,buttonBack;
     private EditText editTextUsername,editTextCurPassword, editTextNewPassword, editTextConfirmPassword;
     private Button buttonSave, buttonSavePw;
     private Target profileImageTarget;
@@ -81,35 +73,9 @@ public class ProfileFragment extends Fragment {
     private AlertDialog editProfileDialog, editUsernameDialog, editPasswordDialog;
     private SwitchCompat notificationSwitch;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public ProfileFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProfileFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProfileFragment newInstance(String param1, String param2) {
-        ProfileFragment fragment = new ProfileFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -129,6 +95,17 @@ public class ProfileFragment extends Fragment {
         changePwTV = view.findViewById(R.id.changePw);
         profileIV = view.findViewById(R.id.userPhoto);
         profileThumbnail = view.findViewById(R.id.profile_view);
+        buttonBack = view.findViewById(R.id.btn_back);
+
+        buttonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, new ProjectListFragment()).commit();
+            }
+        });
+
+        //Change profile pic
         profileIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,6 +114,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        //Check user login status
         authProfile = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = authProfile.getCurrentUser();
         
@@ -148,13 +126,14 @@ public class ProfileFragment extends Fragment {
             showUserProfile(firebaseUser);
         }
 
+        //Edit username button
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showEditUsernameDialog();
             }
         });
-
+        //Edit profile option
         editProfileTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -217,7 +196,6 @@ public class ProfileFragment extends Fragment {
         });
 
         return view;
-
 
     }
     private void showEditPasswordDialog() {
@@ -456,64 +434,40 @@ public class ProfileFragment extends Fragment {
                     profileUsername.setText(username);
 
                     //Set user profile pic
-                    Uri uri = firebaseUser.getPhotoUrl();
-                    loadProfileImage(uri);
-                    Picasso.get().load(uri).into(profileImageTarget);
+                    showProfilePic();
                 }else{
                     Toast.makeText(getActivity(), "Something went wrong!", Toast.LENGTH_LONG).show();
                 }
             }
-            private void loadProfileImage(Uri uri) {
-                profileImageTarget = new Target() {
+            private void showProfilePic(){
+                // Retrieve the current user's ID
+                String currentUserId = firebaseUser.getUid();
+                // Retrieve the reference to the profile picture in Firebase Storage
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                StorageReference profilePictureRef = storage.getReference().child("DisplayPics/").child(currentUserId + ".jpg");
+
+                // Get the download URL of the profile picture
+                profilePictureRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        // Set the loaded bitmap to your ImageView
-                        profileIV.setImageBitmap(bitmap);
-                        
-                        //profileThumbnail.setImageBitmap(bitmap);
-                        // Create a circular bitmap with the loaded bitmap
-                        Bitmap circularBitmap = getRoundedBitmap(bitmap);
+                    public void onSuccess(Uri uri) {
+                        // Load the profile picture using Picasso with circular transformation
 
-                        // Set the circular bitmap to your ImageView
-                        profileThumbnail.setImageBitmap(circularBitmap);
+                        Picasso.get()
+                                .load(uri)
+                                .transform(new CircleTransform()) // Apply circular transformation
+                                .into(profileIV);
+                        Picasso.get()
+                                .load(uri)
+                                .transform(new CircleTransform()) // Apply circular transformation
+                                .into(profileThumbnail);
                     }
-
-                    private Bitmap getRoundedBitmap(Bitmap bitmap) {
-                        // Calculate the radius of the circular image
-                        int radius = Math.min(bitmap.getWidth(), bitmap.getHeight()) / 2;
-
-                        // Create a Bitmap to hold the circular image
-                        Bitmap circularBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-
-                        // Create a Canvas from the circular Bitmap
-                        Canvas canvas = new Canvas(circularBitmap);
-
-                        // Create a Paint object with Anti-Alias enabled
-                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-                        // Draw the circular image using the Paint object
-                        canvas.drawCircle(bitmap.getWidth() / 2f, bitmap.getHeight() / 2f, radius, paint);
-
-                        // Set the circular bitmap as the source for clipping
-                        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-
-                        // Draw the original bitmap onto the circular Bitmap
-                        canvas.drawBitmap(bitmap, 0, 0, paint);
-
-                        return circularBitmap;
-                    }
-
+                }).addOnFailureListener(new OnFailureListener() {
                     @Override
-                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                        // Handle failure to load image
-                        Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle any errors
+                        Log.e("ProjectListFragment", "Failed to retrieve profile picture: " + exception.getMessage());
                     }
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-                        // Handle image loading preparation
-                    }
-                };
+                });
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

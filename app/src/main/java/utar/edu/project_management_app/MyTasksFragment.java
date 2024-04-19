@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,6 +77,7 @@ public class MyTasksFragment extends Fragment{
         expandableListAdapter = new MyTaskListAdapter(requireActivity());
         expandableListView.setAdapter(expandableListAdapter);
 
+
         FirebaseStorage storage = FirebaseStorage.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
@@ -87,6 +89,7 @@ public class MyTasksFragment extends Fragment{
         storageRef.child(profilePicPath).getDownloadUrl().addOnSuccessListener(uri -> {
 
             Picasso.get().load(uri).transform(new CircleTransform()).into(profileImageView);
+
         });
         sendNotification("ej8rpP3GTUuojI5Ba1Nbh_:APA91bHjUS9oTwlgbFBpLff5bvOrgCVhxLUGdy4ZMfs10eKG_C7Mr8nN7fniRbpPtQnzbjFt1aqpwuflVh0T7W9hRVPjSabHizG6pSNck4GaEVZIwZLq3U2sDWpebjBwHczmyBPiuQWX", "test_user", "mobile app", "project");
 
