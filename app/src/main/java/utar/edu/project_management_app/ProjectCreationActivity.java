@@ -35,8 +35,5 @@ public class ProjectCreationActivity extends AppCompatActivity {
             }
         });
     }
-    public void text1(){
-        TextView tv1 = findViewById(R.id.textView3);
-        tv1.setText("hehe");
-    }
+
 }

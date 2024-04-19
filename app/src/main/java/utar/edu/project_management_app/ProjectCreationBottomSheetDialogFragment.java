@@ -81,13 +81,11 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
         View view = inflater.inflate(R.layout.activity_project_creation, container, false);
 
         selectedDateTextView = view.findViewById(R.id.selectedDateTextView);
-        listView = view.findViewById(R.id.ListTextView);
-        kanbanView = view.findViewById(R.id.KanbanTextView);
         project_name = view.findViewById(R.id.project_name);
         create_project_btn = view.findViewById(R.id.btn_create_project);
         cancel_project_btn = view.findViewById(R.id.btn_cancel_project);
         LinearLayout selectDateButton = view.findViewById(R.id.dateButton);
-        LinearLayout inviteMembers = view.findViewById(R.id.invite_member);
+
 
         if (getArguments() != null) {
             String projectName = getArguments().getString("projectName");
@@ -105,7 +103,7 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
                 String date = selectedDateTextView.getText().toString();
                 String view = defaultView;
                 String defaultDateText = "Selected Date: Not set";
-                String username = "elyn";
+                //String username = "elyn";
                 //projectCount++;
                 if (proj_name.isEmpty()) {
                     project_name.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
@@ -123,13 +121,6 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
                     return;
                 }
 
-
-
-                /*if (!proj_name.isEmpty() && !date.equals(defaultDateText)){
-                    addProjectToDB(proj_name, date, view);
-                    dismiss();
-                }*/
-                // Retrieve current user ID
                 String currentUserId = getCurrentUserId();
 
                 if (!proj_name.isEmpty() && !date.equals(defaultDateText)) {
@@ -150,26 +141,7 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
                 dismiss();
             }
         });
-        // Set click listener for List TextView
-        listView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listView.setTextColor(Color.BLUE);
-                kanbanView.setTextColor(Color.BLACK);
 
-            }
-        });
-
-        // Set click listener for Kanban TextView
-        kanbanView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                kanbanView.setTextColor(Color.BLUE);
-                listView.setTextColor(Color.BLACK);
-                defaultView = "Kanban";
-            }
-
-        });
         selectDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -191,7 +163,8 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
 
 
         // Get reference to the current user's projects node
-        DatabaseReference currentUserProjectsRef = FirebaseDatabase.getInstance().getReference().child("Registered Users").child(userId).child("projects");
+        DatabaseReference currentUserProjectsRef = FirebaseDatabase.getInstance().getReference()
+                .child("Registered Users").child(userId).child("projects");
         // Push the project data under the user's projects node with the incremented project counter as the key
         DatabaseReference newProjectRef = currentUserProjectsRef.push();
         String projectId = newProjectRef.getKey();  // Get the generated project ID
@@ -201,18 +174,13 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
         newProject.setProjectId(projectId);
         newProject.getEmails().add(getCurrentUserEmail());
 
-        // Create a hashmap for the project details
-//        HashMap<String, Object> projectDetails = new HashMap<>();
-//        projectDetails.put("Project Name", projName);
-//        projectDetails.put("Due Date", date);
-
-
         // Store the project details under the generated project ID in the projects table
         DatabaseReference projectsRef = FirebaseDatabase.getInstance().getReference().child("projects").child(projectId);
         projectsRef.setValue(newProject);
 
         // Update the user's projectsId list
-        DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference().child("Registered Users").child(userId);
+        DatabaseReference currentUserRef = FirebaseDatabase.getInstance().getReference()
+                .child("Registered Users").child(userId);
         currentUserRef.child("ProjectId").child(projectId).setValue(true); // Add project ID to the user's projectsId list
 
         /*if (projectCreatedListener != null) {
@@ -220,9 +188,6 @@ public class ProjectCreationBottomSheetDialogFragment extends BottomSheetDialogF
         }*/
 
     }
-
-
-
 
     private String getCurrentUserId() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
