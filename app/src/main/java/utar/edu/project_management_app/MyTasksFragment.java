@@ -3,6 +3,7 @@ package utar.edu.project_management_app;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +49,7 @@ public class MyTasksFragment extends Fragment{
         expandableListAdapter = new MyTaskListAdapter(requireActivity());
         expandableListView.setAdapter(expandableListAdapter);
 
+
         FirebaseStorage storage = FirebaseStorage.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
@@ -59,6 +61,7 @@ public class MyTasksFragment extends Fragment{
         storageRef.child(profilePicPath).getDownloadUrl().addOnSuccessListener(uri -> {
 
             Picasso.get().load(uri).transform(new CircleTransform()).into(profileImageView);
+
         });
 
 
