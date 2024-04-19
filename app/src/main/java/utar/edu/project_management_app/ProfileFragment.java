@@ -469,7 +469,7 @@ public class ProfileFragment extends Fragment {
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         // Set the loaded bitmap to your ImageView
                         profileIV.setImageBitmap(bitmap);
-                        
+
                         //profileThumbnail.setImageBitmap(bitmap);
                         // Create a circular bitmap with the loaded bitmap
                         Bitmap circularBitmap = getRoundedBitmap(bitmap);
