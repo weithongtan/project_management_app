@@ -40,6 +40,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.Date;
@@ -48,8 +52,19 @@ import java.util.Iterator;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import utar.edu.project_management_app.model.Task;
+import utar.edu.project_management_app.SendNotification;
 
 public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreationBottomSheetDialogFragment.OnDialogDismissListener{
 
@@ -60,13 +75,12 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     private List<ImageView> dropDownButtonSectionList;
     private List<LinearLayout> kanbanList;
     private String projectId ;
-
+    private String projectName;
     private String viewType;
-
+    private String currentEmail;
     private ImageView addMember;
-
-    private List<String> projectEmails = new ArrayList<>();;
-    private List<String> newInvitedEmails = new ArrayList<>();;
+    private List<String> projectEmails = new ArrayList<>();
+    private List<String> newInvitedEmails = new ArrayList<>();
 
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
     @Override
@@ -78,7 +92,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         setContentView(R.layout.activity_project_tasks);
         // include the menu layout
         View includedLayout = LayoutInflater.from(this).inflate(R.layout.activity_project_tasks_menu, null);
-
         //get profile photo
         FirebaseStorage storage = FirebaseStorage.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -94,8 +107,8 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
         // Retrieve the project ID from the intent
         projectId = getIntent().getStringExtra("projectId");
-        String projectName = getIntent().getStringExtra("projectName");
-
+        projectName = getIntent().getStringExtra("projectName");
+        currentEmail = user.getEmail();
 
         TextView projectname = findViewById(R.id.project_name);
         projectname.setText(projectName);
@@ -368,6 +381,14 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         DatabaseReference projectEmailsRef = database.child("projects").child(projectId).child("emails");
         projectEmailsRef.setValue(projectEmails).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                SendNotification.getTokens(database, newInvitedEmails, tokens -> {
+                    // This block will execute once all tokens are ready
+                    for (String token : tokens) {
+                        // Send notification using the token
+                        SendNotification.sendNotification(token, currentEmail, projectName, "project");
+                    }
+                });
+
                 Log.d("Firebase", "Project emails updated successfully.");
             } else {
                 Log.e("Firebase", "Failed to update project emails.", task.getException());
@@ -382,7 +403,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         TextView deleteButton = emailView.findViewById(R.id.deleteButton);
 
         emailText.setText(email);
-        if (email.equals(getCurrentUserEmail())){
+        if (email.equals(currentEmail)){
             deleteButton.setVisibility(View.GONE);
         }
         deleteButton.setOnClickListener(new View.OnClickListener() {
@@ -396,14 +417,10 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
         container.addView(emailView);
     }
-    private String getCurrentUserEmail() {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            return currentUser.getEmail();
-        }
-        return null;
-    }
+
+
+
+
     private void removeRowsBelowIndex(TableLayout tableLayout, int startIndex, int endIndex) {
         if (tableLayout == null) {
             Log.e("ProjectTasks", "TableLayout is null");
@@ -621,4 +638,5 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         float density = getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);
     }
+
 }
