@@ -2,6 +2,11 @@ package utar.edu.project_management_app;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
@@ -21,6 +26,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,6 +36,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import utar.edu.project_management_app.model.Task;
 
 public class ProjectListFragment extends Fragment implements ProjectCreationBottomSheetDialogFragment.OnProjectCreatedListener {
@@ -75,6 +88,31 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+        // Retrieve the current user's ID
+        String currentUserId = getCurrentUserId();
+        // Retrieve the reference to the profile picture in Firebase Storage
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference profilePictureRef = storage.getReference().child("DisplayPics/").child(currentUserId + ".jpg");
+
+        // Get the download URL of the profile picture
+        profilePictureRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                // Load the profile picture using Picasso with circular transformation
+                ImageView profileImageView = view.findViewById(R.id.profile_view);
+                Picasso.get()
+                        .load(uri)
+                        .transform(new CircleTransform()) // Apply circular transformation
+                        .into(profileImageView);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+                Log.e("ProjectListFragment", "Failed to retrieve profile picture: " + exception.getMessage());
+            }
+        });
+
 
         // Find the root layout by its id
 
@@ -236,6 +274,7 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
         ));
         projectTextView.setGravity(Gravity.CENTER_VERTICAL);
         projectTextView.setPadding(30, 8, 50, 8);
+
         // set click event to navigate to project tasks
         projectTextView.setOnClickListener(new View.OnClickListener(){
             @Override

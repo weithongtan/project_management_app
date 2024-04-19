@@ -22,9 +22,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.view.LayoutInflater;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -38,13 +36,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.Date;
@@ -54,13 +46,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import utar.edu.project_management_app.model.Task;
 
 public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreationBottomSheetDialogFragment.OnDialogDismissListener{
@@ -72,7 +57,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     private List<ImageView> dropDownButtonSectionList;
     private List<LinearLayout> kanbanList;
     private String projectId ;
-    private String token;
 
     private String viewType;
 
@@ -80,7 +64,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
     private List<String> projectEmails = new ArrayList<>();;
     private List<String> newInvitedEmails = new ArrayList<>();;
-    private static int messageIdCounter = 1;
 
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
     @Override
@@ -103,6 +86,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         findViewById(R.id.btn_pending).setRotation(90);
         findViewById(R.id.btn_done).setRotation(90);
 
+        // Todo kanban (Junyi)
         // change view
         spinnerOptions = findViewById(R.id.SectionOptions);
         // add drop down item
@@ -117,7 +101,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // Get the selected item from the spinner
                 String selectedItem = parent.getItemAtPosition(position).toString();
-                // Hide or show view based on the selected item
+                // Run code based on the selected item
                 if (selectedItem.equals("List")) {
                     viewType = "List";
                     findViewById(R.id.listView).setVisibility(View.VISIBLE);
@@ -345,17 +329,15 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
                 for (Map.Entry<String, String> entry : userEmailToIdMap.entrySet()) {
                     String userid = entry.getValue();
-                    String projectName = getIntent().getStringExtra("projectName");
+
                     // Update the database with the userid for the corresponding email
                     DatabaseReference userProjectIdRef = usersRef.child(userid).child("ProjectId");
                     // Assuming you want to update a value in the database, use setValue() method
                     userProjectIdRef.child(projectId).setValue(true);
-
                 }
+
                 // Update project emails in Firebase after cleanup
                 updateProjectEmailsInFirebase();
-
-
             }
 
             @Override
@@ -405,8 +387,6 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         }
         return null;
     }
-
-
     private void removeRowsBelowIndex(TableLayout tableLayout, int startIndex, int endIndex) {
         if (tableLayout == null) {
             Log.e("ProjectTasks", "TableLayout is null");
@@ -586,8 +566,16 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         View.OnClickListener taskClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Task clickedtask = new Task();
+                for (int i = 0;i<tasks.size();i++){
+                    if (v.getTag() == tasks.get(i).getTaskId()){
+                        clickedtask = tasks.get(i);
+                        break;
+                    }
+                }
+
                 Intent i = new Intent(ProjectTasks.this, TaskDetailActivity.class);
-                i.putExtra("clickedTask",  task);
+                i.putExtra("clickedTask",  clickedtask);
                 i.putExtra("ProjectMembersEmail", projectEmails.toArray(new String[0]));
                 startActivity(i);
             }
