@@ -22,7 +22,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.view.LayoutInflater;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -36,7 +38,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.Date;
@@ -46,6 +54,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import utar.edu.project_management_app.model.Task;
 
 public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreationBottomSheetDialogFragment.OnDialogDismissListener{
@@ -57,6 +72,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     private List<ImageView> dropDownButtonSectionList;
     private List<LinearLayout> kanbanList;
     private String projectId ;
+    private String token;
 
     private String viewType;
 
@@ -64,6 +80,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
     private List<String> projectEmails = new ArrayList<>();;
     private List<String> newInvitedEmails = new ArrayList<>();;
+    private static int messageIdCounter = 1;
 
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
     @Override
@@ -329,15 +346,17 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
                 for (Map.Entry<String, String> entry : userEmailToIdMap.entrySet()) {
                     String userid = entry.getValue();
-
+                    String projectName = getIntent().getStringExtra("projectName");
                     // Update the database with the userid for the corresponding email
                     DatabaseReference userProjectIdRef = usersRef.child(userid).child("ProjectId");
                     // Assuming you want to update a value in the database, use setValue() method
                     userProjectIdRef.child(projectId).setValue(true);
-                }
 
+                }
                 // Update project emails in Firebase after cleanup
                 updateProjectEmailsInFirebase();
+
+
             }
 
             @Override
@@ -387,6 +406,8 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         }
         return null;
     }
+
+
     private void removeRowsBelowIndex(TableLayout tableLayout, int startIndex, int endIndex) {
         if (tableLayout == null) {
             Log.e("ProjectTasks", "TableLayout is null");
