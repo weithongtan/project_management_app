@@ -1,8 +1,15 @@
 package utar.edu.project_management_app;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.app.NotificationManager;
+import android.content.Context;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -17,9 +24,12 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
@@ -27,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -68,6 +79,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth authProfile;
     private static final String TAG = "ProfileActivity";
     private AlertDialog editProfileDialog, editUsernameDialog, editPasswordDialog;
+    private SwitchCompat notificationSwitch;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -169,9 +181,45 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        return view;
-    }
+        //Storing shared preference for notification
+        notificationSwitch = view.findViewById(R.id.notificationSwitch);
 
+        // Check if the notification permission is granted
+        boolean notificationEnabled = NotificationManagerCompat.from(requireContext()).areNotificationsEnabled();
+        // Get the user's notification preference from SharedPreferences
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        boolean userNotificationPreference = sharedPreferences.getBoolean("notificationPreference", false);
+
+        // Set the initial state of the switch based on the notification permission and user's preference
+        notificationSwitch.setChecked(notificationEnabled && userNotificationPreference);
+
+        // Set a listener to detect when the switch state changes
+        notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // User turned on notifications
+
+                    // Save user's notification preference
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("notificationPreference", true);
+                    editor.apply();
+
+                } else {
+                    // User turned off notifications
+                    // Save user's notification preference
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("notificationPreference", false);
+                    editor.apply();
+
+                }
+            }
+        });
+
+        return view;
+
+
+    }
     private void showEditPasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -421,6 +469,7 @@ public class ProfileFragment extends Fragment {
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         // Set the loaded bitmap to your ImageView
                         profileIV.setImageBitmap(bitmap);
+                        
                         //profileThumbnail.setImageBitmap(bitmap);
                         // Create a circular bitmap with the loaded bitmap
                         Bitmap circularBitmap = getRoundedBitmap(bitmap);
