@@ -4,6 +4,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +47,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -52,11 +61,12 @@ public class ProfileFragment extends Fragment {
     private TextView profileEmail, profileUsername, logoutTV, editProfileTV, changePwTV;
     private String username, email;
     private ImageButton editProfile;
-    private ImageView profileIV;
+    private ImageView profileIV,profileThumbnail;
     private EditText editTextUsername,editTextCurPassword, editTextNewPassword, editTextConfirmPassword;
     private Button buttonSave, buttonSavePw;
     private Target profileImageTarget;
     private FirebaseAuth authProfile;
+    private static final String TAG = "ProfileActivity";
     private AlertDialog editProfileDialog, editUsernameDialog, editPasswordDialog;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -106,6 +116,7 @@ public class ProfileFragment extends Fragment {
         editProfileTV = view.findViewById(R.id.editProfile);
         changePwTV = view.findViewById(R.id.changePw);
         profileIV = view.findViewById(R.id.userPhoto);
+        profileThumbnail = view.findViewById(R.id.profile_view);
         profileIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -287,31 +298,70 @@ public class ProfileFragment extends Fragment {
         authProfile = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser =authProfile.getCurrentUser();
 
+//        buttonSave.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String newUsername = editTextUsername.getText().toString();
+//                String email = firebaseUser.getEmail();
+//                //Storing info to Real-time database
+//                ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(newUsername, email);
+//
+//                DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("Registered Users");
+//                referenceProfile.child(firebaseUser.getUid()).setValue(writeUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        if(task.isSuccessful()){
+//                            editUsernameDialog.dismiss();
+//                            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+//                            transaction.replace(R.id.fragment_container, new ProfileFragment()).commit();
+//
+//                        }else {
+//                            Toast.makeText(getActivity(), "Failed to update username", Toast.LENGTH_LONG).show();
+//                        }
+//                    }
+//                });
+//
+//            }
+//        });
+
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String newUsername = editTextUsername.getText().toString();
                 String email = firebaseUser.getEmail();
-                //Storing info to Real-time database
-                ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(newUsername, email);
 
-                DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("Registered Users");
-                referenceProfile.child(firebaseUser.getUid()).setValue(writeUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()){
-                            editUsernameDialog.dismiss();
-                            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-                            transaction.replace(R.id.fragment_container, new ProfileFragment()).commit();
+                // Get FCM token
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                String fcmToken = task.getResult();
 
-                        }else {
-                            Toast.makeText(getActivity(), "Failed to update username", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+                                //Storing info to Real-time database
+                                ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(newUsername, email, fcmToken);
 
+                                DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("Registered Users");
+                                referenceProfile.child(firebaseUser.getUid()).setValue(writeUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()){
+                                            editUsernameDialog.dismiss();
+                                            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                                            transaction.replace(R.id.fragment_container, new ProfileFragment()).commit();
+
+                                        }else {
+                                            Toast.makeText(getActivity(), "Failed to update username", Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                });
+                            } else {
+                                Log.e(TAG, "Failed to get FCM token", task.getException());
+                                Toast.makeText(getActivity(), "Failed to update username", Toast.LENGTH_LONG).show();
+                            }
+                        });
             }
         });
+
+
         editUsernameDialog = builder.create();
         editUsernameDialog.show();
     }
@@ -371,6 +421,37 @@ public class ProfileFragment extends Fragment {
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         // Set the loaded bitmap to your ImageView
                         profileIV.setImageBitmap(bitmap);
+                        //profileThumbnail.setImageBitmap(bitmap);
+                        // Create a circular bitmap with the loaded bitmap
+                        Bitmap circularBitmap = getRoundedBitmap(bitmap);
+
+                        // Set the circular bitmap to your ImageView
+                        profileThumbnail.setImageBitmap(circularBitmap);
+                    }
+
+                    private Bitmap getRoundedBitmap(Bitmap bitmap) {
+                        // Calculate the radius of the circular image
+                        int radius = Math.min(bitmap.getWidth(), bitmap.getHeight()) / 2;
+
+                        // Create a Bitmap to hold the circular image
+                        Bitmap circularBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+                        // Create a Canvas from the circular Bitmap
+                        Canvas canvas = new Canvas(circularBitmap);
+
+                        // Create a Paint object with Anti-Alias enabled
+                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+                        // Draw the circular image using the Paint object
+                        canvas.drawCircle(bitmap.getWidth() / 2f, bitmap.getHeight() / 2f, radius, paint);
+
+                        // Set the circular bitmap as the source for clipping
+                        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+                        // Draw the original bitmap onto the circular Bitmap
+                        canvas.drawBitmap(bitmap, 0, 0, paint);
+
+                        return circularBitmap;
                     }
 
                     @Override
