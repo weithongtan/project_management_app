@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -100,52 +101,65 @@ public class RegisterActivity extends AppCompatActivity {
     }
     private void registerUser(String username, String email, String password){
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        //Create User Profile
-        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
 
-                    FirebaseUser firebaseuser = auth.getCurrentUser();
+        // Get FCM token
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String fcmToken = task.getResult();
 
-                    //Storing info to Real-time database
-                    ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(username, email);
+                        // Create User Profile
+                        auth.createUserWithEmailAndPassword(email, password)
+                                .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
 
-                    DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("Registered Users");
-                    referenceProfile.child(firebaseuser.getUid()).setValue(writeUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                //send verification email
-                                firebaseuser.sendEmailVerification();
-                                Toast.makeText(RegisterActivity.this, "Register Successfully. Please verify your email.", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                                //to prevent returning to registration when back button pressed
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                                finish();
-                            }
-                            else{
-                                Toast.makeText(RegisterActivity.this, "Register Failed. Please try again.", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
+                                            FirebaseUser firebaseuser = auth.getCurrentUser();
 
-                }else{
-                    try{
-                        throw task.getException();
-                    }catch(FirebaseAuthInvalidCredentialsException e){
-                        signupEmail.setError("Your email is invalid or already in use");
-                        signupEmail.requestFocus();
-                    }catch(FirebaseAuthUserCollisionException e){
-                        signupEmail.setError("Your email is already registered");
-                        signupEmail.requestFocus();
-                    }catch(Exception e){
-                        Log.e(TAG, e.getMessage());
-                        Toast.makeText(RegisterActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                            // Storing info to Real-time database
+                                            ReadWriteUserDetails writeUserDetails = new ReadWriteUserDetails(username, email, fcmToken);
+
+                                            DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("Registered Users");
+                                            referenceProfile.child(firebaseuser.getUid()).setValue(writeUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        // Send verification email
+                                                        firebaseuser.sendEmailVerification();
+                                                        Toast.makeText(RegisterActivity.this, "Register Successfully. Please verify your email.", Toast.LENGTH_LONG).show();
+                                                        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                                                        // To prevent returning to registration when back button pressed
+                                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                        startActivity(intent);
+                                                        finish();
+                                                    } else {
+                                                        Toast.makeText(RegisterActivity.this, "Register Failed. Please try again.", Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                            });
+
+                                        } else {
+                                            try {
+                                                throw task.getException();
+                                            } catch (FirebaseAuthInvalidCredentialsException e) {
+                                                signupEmail.setError("Your email is invalid or already in use");
+                                                signupEmail.requestFocus();
+                                            } catch (FirebaseAuthUserCollisionException e) {
+                                                signupEmail.setError("Your email is already registered");
+                                                signupEmail.requestFocus();
+                                            } catch (Exception e) {
+                                                Log.e(TAG, e.getMessage());
+                                                Toast.makeText(RegisterActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    }
+                                });
+                    } else {
+                        Log.e(TAG, "Failed to get FCM token", task.getException());
+                        Toast.makeText(RegisterActivity.this, "Failed to get FCM token", Toast.LENGTH_LONG).show();
                     }
-                }
-            }
-        });
+                });
     }
+
 }
