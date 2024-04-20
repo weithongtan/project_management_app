@@ -38,12 +38,12 @@
 
                 <TableLayout
                     android:id="@+id/tableLayout"
-                    android:layout_width="413dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="#E8E8E8"
                     android:divider="#9A9A9A"
                     android:showDividers="beginning|end|none"
-                    android:stretchColumns="*">
+                    android:stretchColumns="0, 1, 3, 5">
 
                     <!-- Row 1: Column Titles -->
 
@@ -78,7 +78,7 @@
                             android:layout_width="107dp"
                             android:layout_height="wrap_content"
                             android:padding="8dp"
-                            android:text="Assignee"
+                            android:text="Created On"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 

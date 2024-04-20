@@ -593,7 +593,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         TextView kanbanTaskAssigneeTextView = kanbanTask.findViewById(R.id.kanbanTaskAssignee);
         TextView kanbanTaskDateTextView = kanbanTask.findViewById(R.id.kanbanTaskDate);
         kanbanTaskNameTextView.setText(taskName);
-        kanbanTaskAssigneeTextView.setText("234");
+        kanbanTaskAssigneeTextView.setText(creationDate);
         kanbanTaskDateTextView.setText(dueDate);
 
         //On click listener for tasks
