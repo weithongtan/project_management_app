@@ -48,12 +48,10 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
     private String currentUserId;
     private boolean isProjectUpdated = false;
     private EditText searchEditText;
-    private FrameLayout rootLayout;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_project_list, container, false);
-
         currentUserId = getCurrentUserId();
         searchEditText = view.findViewById(R.id.searchProjectEditText);
 
@@ -78,31 +76,25 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-                            // Handle error
                         }
                     });
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        // Retrieve the current user's ID
+        // update user's profile pic
         String currentUserId = getCurrentUserId();
-        // Retrieve the reference to the profile picture in Firebase Storage
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference profilePictureRef = storage.getReference().child("DisplayPics/").child(currentUserId + ".jpg");
-
-        // Get the download URL of the profile picture
         profilePictureRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                // Load the profile picture using Picasso with circular transformation
                 ImageView profileImageView = view.findViewById(R.id.profile_view);
                 Picasso.get()
                         .load(uri)
-                        .transform(new CircleTransform()) // Apply circular transformation
+                        .transform(new CircleTransform())
                         .into(profileImageView);
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -113,15 +105,6 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             }
         });
 
-
-        // Find the root layout by its id
-
-        view.findViewById(R.id.searchEngine).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-
         // Add listener to the tasks node for real-time updates
         DatabaseReference tasksRef = FirebaseDatabase.getInstance().getReference().child("task");
         tasksRef.addValueEventListener(new ValueEventListener() {
@@ -129,11 +112,9 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot projectSnapshot : dataSnapshot.getChildren()) {
                     String projectId = projectSnapshot.child("projectId").getValue(String.class);
-                    // Calculate progress percentage for each project
                     calculateProgressPercent(projectId);
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
@@ -172,7 +153,6 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
                 bottomSheetDialog.show(getChildFragmentManager(), "ProjectCreationBottomSheet");
             }
         });
-
         return view;
     }
 
@@ -194,7 +174,6 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
         return null;
     }
 
-
     private void setupSearchFunctionality() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -214,7 +193,6 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             }
         });
     }
-
 
     private void searchProjects(String searchQuery) {
         TableLayout tableLayout = requireView().findViewById(R.id.tableLayout);
@@ -245,8 +223,6 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
         }
     }
 
-
-
     private void updateUIWithProject(String projectId, String projectName, String selectedDate) {
         TableLayout tableLayout = requireView().findViewById(R.id.tableLayout);
 
@@ -256,15 +232,11 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
             // If a row exists, update the existing row with the new project details
             TextView projectTextView = (TextView) existingRow.getChildAt(0);
             projectTextView.setText(projectName);
-
-            return; // Exit the method to avoid adding a new row
+            return;
         }
-
-
         // If no existing row is found, create a new row and add it to the UI
         TableRow newRow = new TableRow(requireContext());
         newRow.setTag(projectId);
-
 
         TextView projectTextView = new TextView(requireContext());
         projectTextView.setText(projectName);
@@ -327,13 +299,9 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Get a reference to the project node
+
                         DatabaseReference projectRef = FirebaseDatabase.getInstance().getReference().child("projects").child(projectId);
-
-                        // Get a reference to the tasks node
                         DatabaseReference tasksRef = FirebaseDatabase.getInstance().getReference().child("task");
-
-                        // Remove all tasks associated with the project
                         tasksRef.orderByChild("projectId").equalTo(projectId).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -341,10 +309,8 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
                                     taskSnapshot.getRef().removeValue();
                                 }
                             }
-
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) {
-                                // Handle error
                             }
                         });
 
@@ -397,7 +363,6 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
                 int progressPercent = totalTasks > 0 ? (int) ((completedTasks / (double) totalTasks) * 100) : 0;
                 updateProgressTextView(projectId, progressPercent);
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
@@ -459,7 +424,6 @@ public class ProjectListFragment extends Fragment implements ProjectCreationBott
 
         dialog.show();
     }
-
 
     private void updateProjectDetails(String projectId, String updatedProjectName, String updatedDueDate) {
         // Update project details in the UI
