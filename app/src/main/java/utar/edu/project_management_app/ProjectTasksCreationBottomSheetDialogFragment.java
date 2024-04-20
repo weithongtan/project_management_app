@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
-
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,20 +23,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
-import com.google.firebase.database.ValueEventListener;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import utar.edu.project_management_app.model.Project;
 import utar.edu.project_management_app.model.Task;
-import utar.edu.project_management_app.model.User;
 
 public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDialogFragment{
 
@@ -47,13 +37,9 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
     private Spinner sectionOptions, priorityOptions;
     private TextView submitTaskButton, dueDate;
     private EditText taskName, description;
-    private Project project;
 
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-    public interface OnTaskSubmitListener{
-        void onTaskSubmit(Task tasks);
-    }
 
 
     public interface OnDialogDismissListener {
@@ -82,7 +68,7 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         taskName = view.findViewById(R.id.ev_task_name);
         description = view.findViewById(R.id.ev_description);
 
-        // Spinner for todo, pending and complete
+        // Spinner for to do, pending and complete
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.section, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -103,6 +89,7 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         });
 
         DatabaseReference counterRef = database.child("taskCounter");
+
 
         submitTaskButton.setOnClickListener(v->{
 
@@ -125,11 +112,11 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
                     if (committed) {
                         if(isFilled()){
 
+                            // update database
                             Task newTask = new Task(UUID.randomUUID().toString(),taskName.getText().toString(),dueDate.getText().toString(),
                                     priorityOptions.getSelectedItem().toString(),sectionOptions.getSelectedItem().toString(),
                                     description.getText().toString(),projectId);
                             newTask.getUserEmails().add(getCurrentUserEmail());
-//                            taskSubmitListener.onTaskSubmit(newTask); // add task row to project list screen
 
                             // update task and project in realtime database
                             Map<String, Object> childUpdates = new HashMap<>();
@@ -148,14 +135,10 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
             });
 
         });
-
-
-
-
-
         return view;
     }
 
+    // get current user email
     private String getCurrentUserEmail() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -164,6 +147,7 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         }
         return null;
     }
+    // get current user id
     private String getCurrentUserId() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -179,6 +163,8 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
             dismissListener.onDialogDismissed();
         }
     }
+
+    // to ensure the important task detail is filled before adding
     private boolean isFilled() {
         boolean isTaskNameEmpty = taskName.getText().toString().isEmpty();
         boolean isDateEmpty = !Character.isDigit(dueDate.getText().toString().charAt(0));
@@ -202,6 +188,7 @@ public class ProjectTasksCreationBottomSheetDialogFragment extends BottomSheetDi
         return !isTaskNameEmpty && !isDateEmpty;
     }
 
+    // show to pick the date
     private void showDatePickerDialog() {
         // Get current date to set as default in DatePickerDialog
         final Calendar calendar = Calendar.getInstance();

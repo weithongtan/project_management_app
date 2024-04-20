@@ -39,36 +39,15 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
-
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import utar.edu.project_management_app.model.Task;
-import utar.edu.project_management_app.SendNotification;
 
 public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreationBottomSheetDialogFragment.OnDialogDismissListener{
 
-    private Task task;
     private List<Task> tasks;
     private TextView openBottomSheetButton;
     private Spinner spinnerOptions;
@@ -91,7 +70,8 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
         setContentView(R.layout.activity_project_tasks);
         // include the menu layout
-        View includedLayout = LayoutInflater.from(this).inflate(R.layout.activity_project_tasks_menu, null);
+        View includedLayout = LayoutInflater.from(this).inflate(R.layout.activity_project_tasks_menu, null)
+                ;
         //get profile photo
         FirebaseStorage storage = FirebaseStorage.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -99,6 +79,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         StorageReference storageRef = storage.getReference().child("DisplayPics");
         String userId = user.getUid();
         String profilePicPath = userId + ".jpg";
+
         // Get download URL for the profile picture
         storageRef.child(profilePicPath).getDownloadUrl().addOnSuccessListener(uri -> {
             ImageView profileImageView = this.findViewById(R.id.profile_view);
@@ -110,6 +91,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         projectName = getIntent().getStringExtra("projectName");
         currentEmail = user.getEmail();
 
+        // set project name
         TextView projectname = findViewById(R.id.project_name);
         projectname.setText(projectName);
 
@@ -197,6 +179,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     }
 
 
+    // get tasks for current project from database
     private void getTask(){
         DatabaseReference tasksRef = database.child("task");
         Query query = tasksRef.orderByChild("projectId").equalTo(projectId);
@@ -219,6 +202,8 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
             }
         });
     }
+
+    // refresh project task list
     private void refreshTaskList(){
         TableLayout tableLayout = findViewById(R.id.tableLayout);
         // Find the index of each section header
@@ -284,6 +269,8 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
             }
         });
     }
+
+    // invite member to current project
     private void inviteMember() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -331,6 +318,8 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         });
         alertDialog.show();
     }
+
+    // perform processing of list to make it can update to database
     private void processInvitationsAndUpdateProjectEmails() {
         DatabaseReference usersRef = database.child("Registered Users");
 
@@ -377,6 +366,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         });
     }
 
+    // update database of invited member
     private void updateProjectEmailsInFirebase() {
         DatabaseReference projectEmailsRef = database.child("projects").child(projectId).child("emails");
         projectEmailsRef.setValue(projectEmails).addOnCompleteListener(task -> {
@@ -396,7 +386,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         });
     }
 
-
+    // added email will display in view container
     private void addEmailView(LinearLayout container, String email) {
         View emailView = LayoutInflater.from(this).inflate(R.layout.email_item, null);
         TextView emailText = emailView.findViewById(R.id.emailText);
@@ -421,6 +411,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
 
 
 
+    // function to delete all task for a section
     private void removeRowsBelowIndex(TableLayout tableLayout, int startIndex, int endIndex) {
         if (tableLayout == null) {
             Log.e("ProjectTasks", "TableLayout is null");
@@ -438,6 +429,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         }
     }
 
+    // set visibility for a section tasks
     private void toggleRowsBelowIndex(TableLayout tableLayout, int startIndex, int endIndex) {
         if (tableLayout == null) {
             Log.e("ProjectTasks", "TableLayout is null");
@@ -455,6 +447,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         }
     }
 
+    // function is called to perform show or unshow the task for a section
     public void dropDownShowDetail(View view) {
         ImageView clickedSection = (ImageView) view;
         TableLayout tableLayout = findViewById(R.id.tableLayout);
@@ -484,7 +477,7 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
     }
 
 
-
+    // function to add task to the table
     private void addTask(Task task) {
         String taskName = task.getTaskName();
         String dueDate = task.getDueDate();
@@ -629,11 +622,13 @@ public class ProjectTasks extends AppCompatActivity implements ProjectTasksCreat
         kanban.addView(kanbanTask);
     }
 
+    // refresh screen
     @Override
     public void onDialogDismissed() {
         onResume(); // Refresh the task list when the dialog is dismissed
     }
 
+    // for tidyness of layout
     private int dpToPx(int dp) {
         float density = getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);
